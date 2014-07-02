@@ -1,17 +1,13 @@
 package com.nhan.whattodo;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.nhan.whattodo.activity.TaskGroupActivity;
-import com.nhan.whattodo.utils.L;
+import com.nhan.whattodo.activity.TaskListActivity;
 
 
 public class MainActivity extends Activity {
@@ -40,7 +36,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 finish();
-                startActivity(new Intent(MainActivity.this, TaskGroupActivity.class));
+                startActivity(new Intent(MainActivity.this, TaskListActivity.class));
             }
         }, 2000);
     }

@@ -2,32 +2,26 @@ package com.nhan.whattodo.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Html;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.tasks.Tasks;
-import com.google.api.services.tasks.TasksScopes;
 import com.google.api.services.tasks.model.TaskList;
-import com.google.api.services.tasks.model.TaskLists;
 import com.nhan.whattodo.R;
-import com.nhan.whattodo.asyntask.TaskGroupAsynTask;
+import com.nhan.whattodo.asyntask.TaskListAsynTask;
+import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.fragment.TGListFragment;
-import com.nhan.whattodo.fragment.TaskFragment;
 import com.nhan.whattodo.utils.DialogUtils;
 import com.nhan.whattodo.utils.GoogleTaskHelper;
 import com.nhan.whattodo.utils.L;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Created by ivanle on 6/29/14.
  */
-public class TaskGroupActivity extends Activity {
+public class TaskListActivity extends Activity {
 
     private Tasks service;
 
@@ -36,7 +30,6 @@ public class TaskGroupActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.task_group_activity);
         setupActionbar();
-
     }
 
     @Override
@@ -47,14 +40,20 @@ public class TaskGroupActivity extends Activity {
 
         if (service != null){
             DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,this,"Wait");
-            new TaskGroupAsynTask().execute(this);
+            new TaskListAsynTask().execute(this);
         }
     }
 
-    public void showTGFragment(ArrayList<String> list){
-        if (list.isEmpty()) return;
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    public void showTGFragment(ArrayList<TaskList> taskLists){
+        if (taskLists.isEmpty()) return;
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
-        getFragmentManager().beginTransaction().replace(R.id.taskGroupFragmentContainer, TGListFragment.newInstance(list)).commit();
+        getFragmentManager().beginTransaction().replace(R.id.taskGroupFragmentContainer, TGListFragment.newInstance(taskLists)).commit();
+
     }
 
 
@@ -70,6 +69,8 @@ public class TaskGroupActivity extends Activity {
         actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK GROUP</b></font>"));
 
     }
+
+
 
     public Tasks getService() {
         return service;
