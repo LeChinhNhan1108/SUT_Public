@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact type="apk" name="WhatToDo">
+    <output-path>$PROJECT_DIR$/out/artifacts/WhatToDo</output-path>
+    <properties id="android-properties">
+      <options>
+        <option name="keyAlias" value="androidrelease" />
+        <option name="keyPassword" value="Y2hpbmhuaGFu" />
+        <option name="keyStorePassword" value="Y2hpbmhuaGFu" />
+        <option name="keyStoreUrl" value="file://$USER_HOME$/Desktop/APK/release.keystore.jks" />
+        <option name="proGuardCfgFiles">
+          <list>
+            <option value="file://%MODULE_SDK_HOME%/tools/proguard/proguard-android.txt" />
+          </list>
+        </option>
+      </options>
+    </properties>
+    <root id="archive" name="WhatToDo.apk">
+      <element id="android-final-package" facet="WhatToDo/android/Android" />
+    </root>
+  </artifact>
+</component>
