@@ -910,7 +910,11 @@
       <created>1404441035867</created>
       <updated>1404441035867</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="- TaskTable created&#10;- TaskModel created">
+      <created>1404441080399</created>
+      <updated>1404441080399</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
