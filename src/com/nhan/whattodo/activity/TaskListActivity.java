@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.TaskList;
 import com.nhan.whattodo.R;
@@ -14,6 +16,7 @@ import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.fragment.TGListFragment;
 import com.nhan.whattodo.utils.DialogUtils;
 import com.nhan.whattodo.utils.GoogleTaskHelper;
+import com.nhan.whattodo.utils.GoogleTaskManager;
 import com.nhan.whattodo.utils.L;
 
 import java.util.ArrayList;
@@ -39,23 +42,37 @@ public class TaskListActivity extends Activity {
         service = GoogleTaskHelper.getTaskService(this,googleServiceAvailable);
 
         if (service != null){
-            DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,this,"Wait");
+            DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,this,getString(R.string.wait_for_sync));
             new TaskListAsynTask().execute(this);
         }
     }
 
+
+
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    public void showTGFragment(ArrayList<TaskList> taskLists){
-        if (taskLists.isEmpty()) return;
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
-        getFragmentManager().beginTransaction().replace(R.id.taskGroupFragmentContainer, TGListFragment.newInstance(taskLists)).commit();
-
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.task_group_activity_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                L.d(" Clear ALL TL");
+                GoogleTaskManager.clearAllTaskList(getService());
+            }
+        }).start();
+        return  true;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -70,6 +87,11 @@ public class TaskListActivity extends Activity {
 
     }
 
+    public void showTGFragment(ArrayList<TaskList> taskLists){
+        if (taskLists == null) return;
+        DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
+        getFragmentManager().beginTransaction().replace(R.id.taskGroupFragmentContainer, TGListFragment.newInstance(taskLists)).commit();
+    }
 
 
     public Tasks getService() {

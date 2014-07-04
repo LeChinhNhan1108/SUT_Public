@@ -3,4 +3,7 @@
     <string name="app_name">WhatToDo</string>
     <string name="flash_screen_text1">WHAT TO</string>
     <string name="flash_screen_text2">DO</string>
+
+    <string name="wait_for_sync">PLEASE WAIT</string>
+
 </resources>

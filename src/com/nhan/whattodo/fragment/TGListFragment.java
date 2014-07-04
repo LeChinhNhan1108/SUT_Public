@@ -1,6 +1,7 @@
 package com.nhan.whattodo.fragment;
 
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.google.api.services.tasks.model.TaskList;
 import com.nhan.whattodo.R;
+import com.nhan.whattodo.activity.TaskActivity;
 import com.nhan.whattodo.adapter.TaskListAdapter;
 import com.nhan.whattodo.utils.L;
 
@@ -38,6 +40,8 @@ public class TGListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        L.t(getActivity(), taskLists.get(position).toString());
+        Intent intent  = new Intent(getActivity(), TaskActivity.class);
+        intent.putExtra(TaskActivity.KEY_TASK_GROUP_ID, id);
+        startActivity(intent);
     }
 }
