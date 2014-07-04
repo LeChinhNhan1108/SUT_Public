@@ -39,11 +39,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="966e721a-5014-433a-b399-b69e1facd134" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/nhan/whattodo/asyntask/TaskAsynTask.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/nhan/whattodo/data_manager/TaskModel.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/nhan/whattodo/data_manager/TaskTable.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/nhan/whattodo/utils/Utils.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/res/menu/task_group_activity_menu.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="WhatToDo.iws" />
@@ -130,7 +125,7 @@
       <file leaf-file-name="TaskModel.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/nhan/whattodo/data_manager/TaskModel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3468208" vertical-offset="0" max-vertical-offset="750">
+            <state vertical-scroll-proportion="0.028901733" vertical-offset="165" max-vertical-offset="750">
               <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
               <folding />
             </state>
@@ -911,7 +906,11 @@
       <created>1404440840456</created>
       <updated>1404440840456</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="- TaskTable created&#10;- TaskModel created">
+      <created>1404441035867</created>
+      <updated>1404441035867</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1282,6 +1281,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="375">
           <caret line="18" column="1" selection-start-line="18" selection-start-column="1" selection-end-line="18" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1369,7 +1371,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nhan/whattodo/data_manager/TaskModel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3468208" vertical-offset="0" max-vertical-offset="750">
+        <state vertical-scroll-proportion="0.028901733" vertical-offset="165" max-vertical-offset="750">
           <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
           <folding />
         </state>
