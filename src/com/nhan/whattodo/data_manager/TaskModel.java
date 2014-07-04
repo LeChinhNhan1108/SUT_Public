@@ -10,6 +10,9 @@ import java.util.List;
  */
 public class TaskModel{
 
+
+    /* Task Model Created*/
+
     private int priority;
     private long group_id;
     private List<Integer> collaborators;
@@ -26,33 +29,33 @@ public class TaskModel{
         return priority;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
+//    public void setPriority(int priority) {
+//        this.priority = priority;
+//    }
 
     public Task getTask() {
         return task;
     }
 
-    public void setTask(Task task) {
-        this.task = task;
-    }
+//    public void setTask(Task task) {
+//        this.task = task;
+//    }
 
     public List<Integer> getCollaborators() {
         return collaborators;
     }
 
-    public void setCollaborators(List<Integer> collaborators) {
-        this.collaborators = collaborators;
-    }
+//    public void setCollaborators(List<Integer> collaborators) {
+//        this.collaborators = collaborators;
+//    }
 
     public long getGroup_id() {
         return group_id;
     }
 
-    public void setGroup_id(long group_id) {
-        this.group_id = group_id;
-    }
+//    public void setGroup_id(long group_id) {
+//        this.group_id = group_id;
+//    }
 
     @Override
     public String toString() {
