@@ -10,13 +10,12 @@ import java.util.List;
  */
 public class TaskModel{
 
-
-    /* Task Model Created*/
-
     private int priority;
     private long group_id;
     private List<Integer> collaborators;
     private Task task;
+
+    private int justCheck;
 
     public TaskModel(int priority, long group_id, Task task) {
         this.priority = priority;
