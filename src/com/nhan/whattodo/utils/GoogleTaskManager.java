@@ -4,10 +4,8 @@ import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
-import com.nhan.whattodo.data_manager.TaskModel;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Created by ivanle on 7/2/14.

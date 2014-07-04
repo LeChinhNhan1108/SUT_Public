@@ -40,14 +40,15 @@ public class TaskTable implements BaseColumns {
             FIELD_REMOTE_ID + " text" +
             ");";
 
-    public static ArrayList<TaskModel> getAllTaskInTaskList(Context context, long id){
+    public static ArrayList<Task> getAllTaskInTaskList(Context context, long id){
 
-        ArrayList<TaskModel> tasks = null;
+        ArrayList<Task> tasks = null;
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         Cursor c = db.query(false,TABLE_NAME,null,FIELD_GROUP + "="+ id,null,null,null,null,null);
+
         if (!c.moveToFirst()) return tasks;
 
-        tasks = new ArrayList<TaskModel>();
+        tasks = new ArrayList<Task>();
 
         while (!c.isAfterLast()){
 
@@ -63,46 +64,49 @@ public class TaskTable implements BaseColumns {
             task.setStatus(c.getString(c.getColumnIndex(FIELD_COMPLETION_STATUS)));
             task.setId(c.getString(c.getColumnIndex(FIELD_REMOTE_ID)));
 
-            TaskModel model = new TaskModel(c.getInt(c.getColumnIndex(FIELD_PRIORITY)),c.getLong(c.getColumnIndex(FIELD_GROUP)), task);
-            tasks.add(model);
+            task.set(FIELD_PRIORITY, c.getInt(c.getColumnIndex(FIELD_PRIORITY)));
+            task.set(FIELD_GROUP,c.getLong(c.getColumnIndex(FIELD_GROUP)));
+            task.set(FIELD_COLLABORATOR,c.getString(c.getColumnIndex(FIELD_COLLABORATOR)));
+
+            tasks.add(task);
 
             c.moveToNext();
         }
         return tasks;
     }
 
-    public static long insertTask(Context context, TaskModel task) {
+    public static long insertTask(Context context, Task task) {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
 
-        values.put(FIELD_TITLE, task.getTask().getTitle());
-        values.put(FIELD_DUE_DATE, task.getTask().getDue() != null ? task.getTask().getDue().toString() : "");
-        values.put(FIELD_NOTE, task.getTask().getNotes() != null ? task.getTask().getNotes() : "");
-        values.put(FIELD_PRIORITY, task.getPriority());
-        values.put(FIELD_COLLABORATOR, convertCollaboratorToString(task.getCollaborators()));
-        values.put(FIELD_GROUP, task.getGroup_id());
-        values.put(FIELD_COMPLETION_STATUS, task.getTask().getStatus());
-        values.put(FIELD_REMOTE_ID, task.getTask().getId());
+        values.put(FIELD_TITLE, task.getTitle());
+        values.put(FIELD_DUE_DATE, task.getDue() != null ? task.getDue().toString() : "");
+        values.put(FIELD_NOTE, task.getNotes() != null ? task.getNotes() : "");
+        values.put(FIELD_PRIORITY, (Integer)task.get(FIELD_PRIORITY));
+        values.put(FIELD_COLLABORATOR, (String)task.get(FIELD_COLLABORATOR));
+        values.put(FIELD_GROUP, (Long)task.get(FIELD_GROUP));
+        values.put(FIELD_COMPLETION_STATUS, task.getStatus());
+        values.put(FIELD_REMOTE_ID, task.getId());
 
         return db.insert(TABLE_NAME, null, values);
     }
 
 
-    public static void updateTask(Context context, TaskModel newModel){
+    public static void updateTask(Context context, Task task){
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values  = new ContentValues();
-
         L.e("Update task");
-        values.put(FIELD_TITLE, newModel.getTask().getTitle());
-        values.put(FIELD_DUE_DATE, newModel.getTask().getDue() != null ? newModel.getTask().getDue().toString() : "");
-        values.put(FIELD_NOTE, newModel.getTask().getNotes() != null ? newModel.getTask().getNotes() : "");
-        values.put(FIELD_PRIORITY, newModel.getPriority());
-        values.put(FIELD_COLLABORATOR, convertCollaboratorToString(newModel.getCollaborators()));
-        values.put(FIELD_GROUP, newModel.getGroup_id());
-        values.put(FIELD_COMPLETION_STATUS, newModel.getTask().getStatus());
-        values.put(FIELD_REMOTE_ID, newModel.getTask().getId());
 
-        int result = db.update(TABLE_NAME,values,_ID + "=" + newModel.getTask().get(TaskTable._ID),null);
+        values.put(FIELD_TITLE, task.getTitle());
+        values.put(FIELD_DUE_DATE, task.getDue() != null ? task.getDue().toString() : "");
+        values.put(FIELD_NOTE, task.getNotes() != null ? task.getNotes() : "");
+        values.put(FIELD_PRIORITY, (Integer)task.get(FIELD_PRIORITY));
+        values.put(FIELD_COLLABORATOR, (String)task.get(FIELD_COLLABORATOR));
+        values.put(FIELD_GROUP, (Long)task.get(FIELD_GROUP));
+        values.put(FIELD_COMPLETION_STATUS, task.getStatus());
+        values.put(FIELD_REMOTE_ID, task.getId());
+
+        int result = db.update(TABLE_NAME,values,_ID + "=" + task.get(TaskTable._ID),null);
         L.e("Result "+ result);
     }
 
@@ -117,6 +121,11 @@ public class TaskTable implements BaseColumns {
             temp += (coll.get(i) + (i <= coll.size() - 1 ? "," : ""));
         }
         return temp;
+    }
+
+
+    public enum PRIORITY{
+        HIGH, MEDIUM, LOW
     }
 
 }

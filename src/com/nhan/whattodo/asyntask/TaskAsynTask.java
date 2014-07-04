@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import com.google.api.services.tasks.model.Task;
 import com.nhan.whattodo.activity.TaskActivity;
-import com.nhan.whattodo.data_manager.TaskModel;
 import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.utils.GoogleTaskManager;
 import com.nhan.whattodo.utils.L;
@@ -14,35 +13,30 @@ import java.util.ArrayList;
 /**
  * Created by ivanle on 7/3/14.
  */
-public class TaskAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskModel>> {
+public class TaskAsynTask extends AsyncTask<Activity, Void, ArrayList<Task>> {
 
     TaskActivity activity;
 
     @Override
-    protected ArrayList<TaskModel> doInBackground(Activity... params) {
+    protected ArrayList<Task> doInBackground(Activity... params) {
         activity = (TaskActivity) params[0];
+        ArrayList<Task> tasks = TaskTable.getAllTaskInTaskList(activity, activity.getTaskGroupId());
 
-        ArrayList<TaskModel> model = TaskTable.getAllTaskInTaskList(activity, activity.getTaskGroupId());
+        Task task = tasks.get(0);
+        task.setTitle("This is another title for task");
 
-        Task task = new Task();
-        task.setTitle("New One from AsyncTask");
-        task.set("Hello", "Just addtional value");
+        TaskTable.updateTask(activity, task);
 
-        Task newTask = GoogleTaskManager.insertTask(activity.getService(),"MDc1MzQzNDU5NDkwOTQwNjE3MzQ6MDow", task);
-        if (newTask == null){
-            L.e("Insert NOT okie");
-        }else{
-            L.e(newTask.toString());
-        }
-        return model;
+        L.e("Check update " + TaskTable.getAllTaskInTaskList(activity,activity.getTaskGroupId()));
+        return tasks;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<TaskModel> taskModels) {
-        super.onPostExecute(taskModels);
-        if (taskModels == null)
-            L.e("NULL");
+    protected void onPostExecute(ArrayList<Task> tasks) {
+        super.onPostExecute(tasks);
+        if (tasks == null)
+            L.e("NULL Tasks");
         else
-            L.e(taskModels.toString());
+            L.e("Task Async "+tasks.toString());
     }
 }

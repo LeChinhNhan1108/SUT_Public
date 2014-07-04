@@ -2,15 +2,12 @@ package com.nhan.whattodo.asyntask;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.SystemClock;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
 import com.google.api.services.tasks.model.Tasks;
 import com.nhan.whattodo.activity.TaskListActivity;
 import com.nhan.whattodo.data_manager.TaskListTable;
-import com.nhan.whattodo.data_manager.TaskModel;
 import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.utils.GoogleTaskManager;
 
@@ -45,9 +42,11 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
             tl.set(TaskListTable._ID, parentId);
             Tasks tasks = GoogleTaskManager.getAllTaskInTaskList(activity.getService(), tl.getId());
             if (tasks.getItems() == null || tasks.getItems().size() == 0) continue;
+
             for (Task task : tasks.getItems()) {
-                TaskModel model = new TaskModel(TaskModel.PRIORITY.MEDIUM.ordinal(), parentId, task);
-                TaskTable.insertTask(activity, model);
+                task.set(TaskTable.FIELD_PRIORITY, TaskTable.PRIORITY.MEDIUM.ordinal());
+                task.set(TaskTable.FIELD_GROUP, parentId);
+                TaskTable.insertTask(activity, task);
             }
         }
     }
