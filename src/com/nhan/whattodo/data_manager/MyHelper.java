@@ -30,6 +30,7 @@ public class MyHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TaskListTable.CREATE_TABLE);
+        db.execSQL(TaskTable.CREATE_TABLE);
     }
 
     @Override

@@ -15,7 +15,9 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.TasksScopes;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  * Created by ivanle on 7/1/14.
@@ -72,7 +74,10 @@ public class GoogleTaskHelper {
         if (requestCode == CREDENTIAL_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
             String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
             saveAccToPref(activity, accountName);
+        }else if (resultCode == Activity.RESULT_CANCELED){
+            activity.finish();
         }
+
     }
 
     public static void saveAccToPref(Activity activity, String accName) {
@@ -95,4 +100,6 @@ public class GoogleTaskHelper {
         }
         return service;
     }
+
+
 }

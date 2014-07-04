@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.google.api.services.tasks.model.TaskList;
 import com.nhan.whattodo.R;
+import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.utils.L;
 
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ public class TaskListAdapter extends ArrayAdapter<TaskList> {
     }
 
     @Override
+    public long getItemId(int position) {
+        return (Long)data.get(position).get(TaskListTable._ID);
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
         if (v == null) {
@@ -39,7 +45,6 @@ public class TaskListAdapter extends ArrayAdapter<TaskList> {
         }
         TextView tvTitle = (TextView) v.findViewById(R.id.taskListTitle);
         tvTitle.setText(data.get(position).getTitle());
-        L.d("data " + data.get(position).getTitle());
         return v;
     }
 
