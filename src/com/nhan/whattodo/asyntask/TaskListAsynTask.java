@@ -44,7 +44,7 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
             if (tasks.getItems() == null || tasks.getItems().size() == 0) continue;
 
             for (Task task : tasks.getItems()) {
-                task.set(TaskTable.FIELD_PRIORITY, TaskTable.PRIORITY.MEDIUM.ordinal());
+                task.set(TaskTable.FIELD_PRIORITY, TaskTable.PRIORITY.LOW.ordinal());
                 task.set(TaskTable.FIELD_GROUP, parentId);
                 TaskTable.insertTask(activity, task);
             }

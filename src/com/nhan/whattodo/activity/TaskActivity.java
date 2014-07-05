@@ -40,8 +40,7 @@ public class TaskActivity extends Activity {
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(KEY_TASK_GROUP_ID)){
             taskGroupId = intent.getLongExtra(KEY_TASK_GROUP_ID, 0);
-            new TaskAsynTask().execute(this);
-            DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,this,getString(R.string.wait_for_sync));
+            getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, TaskListFragment.newInstance(taskGroupId)).commit();
         }
     }
 
@@ -65,7 +64,7 @@ public class TaskActivity extends Activity {
     public void showTaskListFragment(ArrayList<Task> tasks){
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
         if (tasks == null) return;
-        getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, TaskListFragment.newInstance(tasks)).commit();
+        getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, TaskListFragment.newInstance(taskGroupId)).commit();
     }
 
     private void setupActionbar() {

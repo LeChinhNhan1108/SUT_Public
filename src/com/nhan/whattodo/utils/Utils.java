@@ -11,9 +11,17 @@ public class Utils {
     /* Date Time Format */
 
     public static String convertDateToString(long value){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd-MM-yyyy");
         Date date  = new Date(value);
         return simpleDateFormat.format(date);
     }
+
+    public static String convertTimeToString(long value){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        Date date  = new Date(value);
+        return simpleDateFormat.format(date);
+    }
+
+
 
 }

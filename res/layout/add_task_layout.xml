@@ -42,10 +42,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     >
-                <ImageView android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:src="@drawable/ic_action_alarms"
-                           android:layout_gravity="center"
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_action_alarms"
+                        android:layout_gravity="center"
                         />
 
                 <Button
@@ -54,10 +55,9 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
-                        android:text="Due Sat, 10:05:2013"
+                        android:text="Due Sat, 10-05-2013"
                         android:textColor="@android:color/holo_blue_light"
                         />
-
             </TableRow>
 
 
@@ -79,6 +79,7 @@
                         android:gravity="center_vertical"
                         android:text="Remind me at"
                         android:textColor="@android:color/holo_blue_light"
+
                         />
 
             </TableRow>
@@ -110,10 +111,17 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
-                        android:text="Collaborators"
+                        android:text="Choose Collaborator"
                         android:textColor="@android:color/holo_blue_light"
                         />
-
+                <View android:layout_weight="1"/>
+                <ImageView
+                        android:layout_marginRight="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_action_add_person"
+                        android:layout_gravity="center"
+                        />
             </TableRow>
 
 
@@ -149,6 +157,7 @@
                     >
 
                 <EditText
+                        android:id="@+id/edtNote"
                         android:layout_weight="1"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

@@ -2,11 +2,16 @@ package com.nhan.whattodo.fragment;
 
 import android.app.ListFragment;
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import com.google.api.services.tasks.model.Task;
 import com.nhan.whattodo.R;
 import com.nhan.whattodo.adapter.TaskAdapter;
+import com.nhan.whattodo.asyntask.TaskAsynTaskFragment;
+import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.utils.L;
 
 import java.util.ArrayList;
@@ -14,14 +19,21 @@ import java.util.ArrayList;
 /**
  * Created by ivanle on 7/4/14.
  */
-public class TaskListFragment extends ListFragment {
+public class TaskListFragment extends ListFragment implements AdapterView.OnItemLongClickListener {
 
     private ArrayList<Task> tasks;
+    private long taskGroupId;
 
-    public static TaskListFragment newInstance(ArrayList<Task> tasks) {
+//    public static TaskListFragment newInstance(ArrayList<Task> tasks) {
+//        TaskListFragment taskListFragment = new TaskListFragment();
+//        taskListFragment.tasks = tasks;
+//        return taskListFragment;
+//    }
+
+    public static TaskListFragment newInstance(long taskGroupId) {
         TaskListFragment taskListFragment = new TaskListFragment();
-        taskListFragment.tasks = tasks;
-        L.e("Task Fragment " + tasks);
+        taskListFragment.taskGroupId = taskGroupId;
+        taskListFragment.tasks = new ArrayList<Task>();
         return taskListFragment;
     }
 
@@ -33,18 +45,45 @@ public class TaskListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        TaskAdapter adapter = new TaskAdapter(getActivity(), R.layout.task_item, tasks);
-        setListAdapter(adapter);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getListView().setOnItemLongClickListener(this);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        new TaskAsynTaskFragment().execute(this);
+    }
+
+    public void refreshListView(ArrayList<Task> tasks) {
+        L.e("Refresh View");
+        this.tasks.clear();
+        this.tasks.addAll(tasks);
+        TaskAdapter adapter = new TaskAdapter(getActivity(), R.layout.task_item, this.tasks);
+        setListAdapter(adapter);
+    }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
+        L.t(getActivity(), "Id " + id + " -- " + tasks.get(position).get(TaskTable._ID));
 
-        L.t(getActivity(), "Id " + id);
+    }
 
+
+    public long getTaskGroupId() {
+        return taskGroupId;
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        L.e("Long click");
+//        getActivity().getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, )
+        return true;
     }
 }

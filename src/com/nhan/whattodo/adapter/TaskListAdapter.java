@@ -46,6 +46,15 @@ public class TaskListAdapter extends ArrayAdapter<TaskList> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        return getCustomView(position, convertView, parent);
+    }
+
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return getCustomView(position, convertView, parent);
+    }
+
+    public View getCustomView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
         if (v == null) {
             v = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(resource, null);
