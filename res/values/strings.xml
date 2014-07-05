@@ -5,5 +5,7 @@
     <string name="flash_screen_text2">DO</string>
 
     <string name="wait_for_sync">PLEASE WAIT</string>
+    <string name="task_title_dummy">This is the task title. If the title is tooo looong</string>
+    <string name="task_due_dummy">Due on Sat 25 July</string>
 
 </resources>

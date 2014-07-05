@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:padding="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+    <CheckBox
+            android:focusable="false"
+            android:id="@+id/cbxComplete"
+            android:layout_marginRight="5dp"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    <TextView
+            android:id="@+id/tvTaskTitle"
+            android:layout_width="wrap_content"
+            android:maxEms="10"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+            android:text="@string/task_title_dummy"
+            android:layout_toRightOf="@id/cbxComplete"
+            android:ellipsize="end"
+            android:singleLine="true"
+            />
+
+    <TextView
+            android:id="@+id/tvTaskDue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cbxComplete"
+            android:layout_toRightOf="@+id/cbxComplete"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:text="@string/task_due_dummy"
+            android:textColor="@color/cyan"
+            />
+
+
+    <ImageView android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:src="@drawable/ic_launcher"
+               android:layout_centerVertical="true"
+               android:layout_alignParentRight="true"
+               android:visibility="gone"
+            />
+
+
+</RelativeLayout>

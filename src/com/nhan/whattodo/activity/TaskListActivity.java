@@ -88,8 +88,8 @@ public class TaskListActivity extends Activity {
     }
 
     public void showTGFragment(ArrayList<TaskList> taskLists){
-        if (taskLists == null) return;
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
+        if (taskLists == null) return;
         getFragmentManager().beginTransaction().replace(R.id.taskGroupFragmentContainer, TGListFragment.newInstance(taskLists)).commit();
     }
 

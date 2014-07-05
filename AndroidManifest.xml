@@ -3,7 +3,7 @@
           package="com.nhan.whattodo"
           android:versionCode="1"
           android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="13"
+    <uses-sdk android:minSdkVersion="14"
               android:targetSdkVersion="18"
               android:maxSdkVersion="18"/>
 
@@ -27,8 +27,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.TaskActivity"
-                  android:parentActivityName=".activity.TaskListActivity"/>
+        <activity android:name=".activity.TaskActivity"/>
         <activity android:name=".activity.TaskListActivity"/>
 
     </application>

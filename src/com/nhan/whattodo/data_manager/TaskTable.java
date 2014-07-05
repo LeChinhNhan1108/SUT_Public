@@ -47,9 +47,7 @@ public class TaskTable implements BaseColumns {
         Cursor c = db.query(false,TABLE_NAME,null,FIELD_GROUP + "="+ id,null,null,null,null,null);
 
         if (!c.moveToFirst()) return tasks;
-
         tasks = new ArrayList<Task>();
-
         while (!c.isAfterLast()){
 
             Task task = new Task();

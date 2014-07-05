@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent"
+        >
+
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/scrollView"
+            android:layout_gravity="center">
+
+        <TableLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <TableRow android:layout_width="match_parent"
+                      android:layout_height="wrap_content">
+
+                <EditText
+                        android:id="@+id/edtTitle"
+                        android:hint="What to do ..."
+                        android:layout_weight="4"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        />
+
+
+                <Spinner
+                        android:id="@+id/spnPriority"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        />
+
+            </TableRow>
+
+            <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+                <ImageView android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:src="@drawable/ic_action_alarms"
+                           android:layout_gravity="center"
+                        />
+
+                <Button
+                        android:id="@+id/btnDue"
+                        android:paddingLeft="10dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:gravity="center_vertical"
+                        android:text="Due Sat, 10:05:2013"
+                        android:textColor="@android:color/holo_blue_light"
+                        />
+
+            </TableRow>
+
+
+            <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+                <ImageView android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:src="@drawable/ic_action_alarms"
+                           android:layout_gravity="center"
+                        />
+
+                <Button
+                        android:id="@+id/btnRemind"
+                        android:paddingLeft="10dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:gravity="center_vertical"
+                        android:text="Remind me at"
+                        android:textColor="@android:color/holo_blue_light"
+                        />
+
+            </TableRow>
+
+
+            <Spinner
+                    android:layout_width="match_parent"
+                    android:id="@+id/spnTaskGroup"
+                    android:paddingLeft="10dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:text="Choose Task Group"
+                    android:textColor="@android:color/holo_blue_light"
+                    />
+
+            <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+                <ImageView android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:src="@drawable/ic_action_add_person"
+                           android:layout_gravity="center"
+                        />
+
+                <Button
+                        android:id="@+id/btnChooseColl"
+                        android:paddingLeft="10dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:gravity="center_vertical"
+                        android:text="Collaborators"
+                        android:textColor="@android:color/holo_blue_light"
+                        />
+
+            </TableRow>
+
+
+            <TableRow
+                    android:id="@+id/trCompletion"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    >
+                <CheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:checked="false"/>
+
+                <TextView
+                        android:paddingLeft="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/holo_blue_light"
+
+                        />
+            </TableRow>
+
+            <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+
+                <EditText
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_span="3"
+                        android:hint="Notes ..."
+                        android:gravity="start"
+                        android:inputType="textMultiLine"
+                        android:scrollbars="vertical"
+                        android:minLines="8"
+                        android:maxLines="10"
+                        />
+
+            </TableRow>
+
+
+        </TableLayout>
+
+
+    </ScrollView>
+</FrameLayout>
+

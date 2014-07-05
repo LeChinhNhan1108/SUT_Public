@@ -21,22 +21,12 @@ public class TaskAsynTask extends AsyncTask<Activity, Void, ArrayList<Task>> {
     protected ArrayList<Task> doInBackground(Activity... params) {
         activity = (TaskActivity) params[0];
         ArrayList<Task> tasks = TaskTable.getAllTaskInTaskList(activity, activity.getTaskGroupId());
-
-        Task task = tasks.get(0);
-        task.setTitle("This is another title for task");
-
-        TaskTable.updateTask(activity, task);
-
-        L.e("Check update " + TaskTable.getAllTaskInTaskList(activity,activity.getTaskGroupId()));
         return tasks;
     }
 
     @Override
     protected void onPostExecute(ArrayList<Task> tasks) {
         super.onPostExecute(tasks);
-        if (tasks == null)
-            L.e("NULL Tasks");
-        else
-            L.e("Task Async "+tasks.toString());
+        activity.showTaskListFragment(tasks);
     }
 }
