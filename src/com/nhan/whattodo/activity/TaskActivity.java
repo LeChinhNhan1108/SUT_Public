@@ -54,7 +54,8 @@ public class TaskActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.addTask:
-                getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, new AddTaskFragment()).addToBackStack("AddTaskFragment").commit();
+                L.e("task group id  TASK LIST AC " + taskGroupId);
+                getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, AddTaskFragment.newInstance(taskGroupId)).addToBackStack("AddTaskFragment").commit();
                 return true;
         }
 

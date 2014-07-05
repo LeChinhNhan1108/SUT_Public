@@ -27,6 +27,9 @@ public class TaskTable implements BaseColumns {
     public static final String FIELD_COMPLETION_STATUS = "completion";
     public static final String FIELD_REMOTE_ID = "remote_id";
 
+    public static final String STATUS_COMPLETED = "completed";
+    public static final String STATUS_NEED_ACTION = "needsAction";
+
     public static final String CREATE_TABLE = "create table " + TABLE_NAME + " (" +
             _ID + " integer primary key autoincrement," +
             FIELD_TITLE + " text not null," +

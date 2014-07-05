@@ -41,7 +41,7 @@ public class TGListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Intent intent  = new Intent(getActivity(), TaskActivity.class);
-        intent.putExtra(TaskActivity.KEY_TASK_GROUP_ID, id);
+        intent.putExtra(TaskActivity.KEY_TASK_GROUP_ID, getListAdapter().getItemId(position));
         startActivity(intent);
     }
 }

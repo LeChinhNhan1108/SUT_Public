@@ -55,16 +55,10 @@ public class TaskListTable implements BaseColumns {
 
     public static String getTaskListRemoteIDByLocalID(Context context, long id){
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
-        Cursor c = db.query(false,TABLE_NAME,null,null,null,null,null,null,null);
+        Cursor c = db.query(false,TABLE_NAME,null,_ID + "=" +id,null,null,null,null,null);
         if (!c.moveToFirst()) return "";
         String remoteId = c.getString(c.getColumnIndex(FIELD_REMOTE_ID));
         return  remoteId;
     }
-
-
-    public long getTaskListID(TaskList tl){
-        return (Long) tl.get(_ID);
-    }
-
 
 }

@@ -38,14 +38,14 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
 
     public void saveDataFromServerToDB(ArrayList<TaskList> taskLists){
         for (TaskList tl : taskLists) {
-            long parentId = TaskListTable.insertTaskList(activity, tl);
-            tl.set(TaskListTable._ID, parentId);
+            long localID = TaskListTable.insertTaskList(activity, tl);
+            tl.set(TaskListTable._ID, localID);
             Tasks tasks = GoogleTaskManager.getAllTaskInTaskList(activity.getService(), tl.getId());
             if (tasks.getItems() == null || tasks.getItems().size() == 0) continue;
 
             for (Task task : tasks.getItems()) {
                 task.set(TaskTable.FIELD_PRIORITY, TaskTable.PRIORITY.LOW.ordinal());
-                task.set(TaskTable.FIELD_GROUP, parentId);
+                task.set(TaskTable.FIELD_GROUP, localID);
                 TaskTable.insertTask(activity, task);
             }
         }
@@ -61,25 +61,25 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
         TaskList newTaskList;
 
         newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "School");
-        long parentId = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, parentId);
+        long localID = TaskListTable.insertTaskList(activity, newTaskList);
+        newTaskList.set(TaskListTable._ID, localID);
         taskLists.add(newTaskList);
 
 
         newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Work");
-        parentId = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, parentId);
+        localID = TaskListTable.insertTaskList(activity, newTaskList);
+        newTaskList.set(TaskListTable._ID, localID);
         taskLists.add(newTaskList);
 
         newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Entertainment");
-        parentId = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, parentId);
+        localID = TaskListTable.insertTaskList(activity, newTaskList);
+        newTaskList.set(TaskListTable._ID, localID);
         taskLists.add(newTaskList);
 
 
         newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Personal");
-        parentId = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, parentId);
+        localID = TaskListTable.insertTaskList(activity, newTaskList);
+        newTaskList.set(TaskListTable._ID, localID);
         taskLists.add(newTaskList);
         return taskLists;
     }

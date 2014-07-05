@@ -1,10 +1,13 @@
 package com.nhan.whattodo.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
@@ -35,29 +38,53 @@ public class TaskAdapter extends ArrayAdapter<Task> {
 
     @Override
     public long getItemId(int position) {
-        return (Long)data.get(position).get(TaskTable._ID);
+        return (Long) data.get(position).get(TaskTable._ID);
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
         View v = convertView;
 
-        if (v == null){
-            v = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(resource,null);
+        if (v == null) {
+            v = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(resource, null);
         }
 
         TextView tvTaskTitle = (TextView) v.findViewById(R.id.tvTaskTitle);
         TextView tvTaskDue = (TextView) v.findViewById(R.id.tvTaskDue);
+        CheckBox cbCompleted = (CheckBox) v.findViewById(R.id.cbxComplete);
+
+
+        boolean completed = data.get(position).getStatus() != null && data.get(position).getStatus().equalsIgnoreCase(TaskTable.STATUS_COMPLETED);
+        cbCompleted.setChecked(completed);
+
+        if (completed) {
+            tvTaskTitle.setPaintFlags(tvTaskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            tvTaskTitle.setPaintFlags(tvTaskTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+        }
 
         tvTaskTitle.setText(data.get(position).getTitle());
         DateTime dateTime = data.get(position).getDue();
 
-        if (dateTime == null){
+        if (dateTime == null) {
             tvTaskDue.setText("Infinity");
-        }else{
-            tvTaskDue.setText("Due "+Utils.convertDateToString(dateTime.getValue()));
+        } else {
+            tvTaskDue.setText("Due " + Utils.convertDateToString(dateTime.getValue()));
         }
+
+        cbCompleted.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    data.get(position).setStatus(TaskTable.STATUS_COMPLETED);
+
+                } else {
+                    data.get(position).setStatus(TaskTable.STATUS_NEED_ACTION);
+                }
+                notifyDataSetChanged();
+            }
+        });
         return v;
     }
 }

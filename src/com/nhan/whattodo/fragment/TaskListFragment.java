@@ -24,12 +24,6 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
     private ArrayList<Task> tasks;
     private long taskGroupId;
 
-//    public static TaskListFragment newInstance(ArrayList<Task> tasks) {
-//        TaskListFragment taskListFragment = new TaskListFragment();
-//        taskListFragment.tasks = tasks;
-//        return taskListFragment;
-//    }
-
     public static TaskListFragment newInstance(long taskGroupId) {
         TaskListFragment taskListFragment = new TaskListFragment();
         taskListFragment.taskGroupId = taskGroupId;
@@ -62,10 +56,15 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
 
     public void refreshListView(ArrayList<Task> tasks) {
         L.e("Refresh View");
-        this.tasks.clear();
-        this.tasks.addAll(tasks);
-        TaskAdapter adapter = new TaskAdapter(getActivity(), R.layout.task_item, this.tasks);
-        setListAdapter(adapter);
+        if (tasks != null && !tasks.isEmpty()){
+            this.tasks.clear();
+            this.tasks.addAll(tasks);
+            TaskAdapter adapter = new TaskAdapter(getActivity(), R.layout.task_item, this.tasks);
+            setListAdapter(adapter);
+        }else{
+            L.t(getActivity(), "No thing to show");
+            setListShown(true);
+        }
     }
 
     @Override

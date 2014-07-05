@@ -5,4 +5,9 @@
           android:title="Add"
           android:showAsAction="always"
             />
+
+    <item android:id="@+id/removeTask"
+          android:title="Remove"
+          android:showAsAction="always"
+            />
 </menu>

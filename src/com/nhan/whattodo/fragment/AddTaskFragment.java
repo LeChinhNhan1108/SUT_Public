@@ -40,15 +40,17 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     public static final int REQUEST_GET_CONTACT = 1;
     private Spinner taskListSpinner, spinnerPriority;
     private Button btnDue, btnRemind, btnChooseColl;
+    private ImageButton btnShowColl;
     private EditText edtTitle, edtNote;
     Calendar calendar;
-    long dueDate;
+    long dueDate, taskGroupId;
     ArrayList<Collaborator> collaborators;
 
 
-    public static AddTaskFragment newInstance() {
+    public static AddTaskFragment newInstance(long taskGroupId) {
 
         AddTaskFragment addTaskFragment = new AddTaskFragment();
+        addTaskFragment.taskGroupId = taskGroupId;
         return addTaskFragment;
     }
 
@@ -87,16 +89,22 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             e.printStackTrace();
         }
 
+        // Since index = 0, id = 1
+        taskListSpinner.setSelection((int) taskGroupId - 1);
+
         edtTitle = (EditText) view.findViewById(R.id.edtTitle);
         edtNote = (EditText) view.findViewById(R.id.edtNote);
 
         btnDue = (Button) view.findViewById(R.id.btnDue);
         btnRemind = (Button) view.findViewById(R.id.btnRemind);
         btnChooseColl = (Button) view.findViewById(R.id.btnChooseColl);
+        btnShowColl = (ImageButton) view.findViewById(R.id.btnShowColl);
 
         btnDue.setOnClickListener(this);
         btnRemind.setOnClickListener(this);
         btnChooseColl.setOnClickListener(this);
+        btnShowColl.setOnClickListener(this);
+
 
         calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getDefault());
@@ -146,6 +154,13 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         startActivityForResult(intent, REQUEST_GET_CONTACT);
     }
 
+    private void btnShowColl(View v) {
+        if (collaborators != null && collaborators.size() != 0) {
+            CollaboratorFragment fragment = CollaboratorFragment.newInstance(collaborators);
+            fragment.show(getFragmentManager(), "CollaboratorFragment");
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -154,6 +169,15 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        L.e("Resume");
+        if (collaborators == null || collaborators.isEmpty()) return;
+        L.e("Cooll " + collaborators.toString());
     }
 
     private void saveTask() {
@@ -174,15 +198,26 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         task.set(TaskTable.FIELD_COLLABORATOR, collaborators);
         task.setNotes(note);
 
-        TaskTable.insertTask(getActivity(), task);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String remoteId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
-                GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteId, task);
-            }
-        }).start();
-        getActivity().onBackPressed();
+
+//        L.e("Task added " + task.toString());
+
+        long result = TaskTable.insertTask(getActivity(), task);
+        if (result != -1) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
+                    String remoteId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
+//                    L.e("Parent id " + parent_id);
+//                    L.e("Remote id " + remoteId);
+                    GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteId, task);
+                }
+            }).start();
+            getActivity().onBackPressed();
+        } else {
+            L.e("Hic Error");
+        }
+
     }
 
     public static final String DELIMITER = ";";
@@ -309,6 +344,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.add_task_fragment_menu, menu);
         menu.findItem(R.id.addTask).setVisible(false);
+        menu.findItem(R.id.removeTask).setVisible(false);
     }
 
 
@@ -329,9 +365,11 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             case R.id.btnChooseColl:
                 btnChooseColl(v);
                 break;
+            case R.id.btnShowColl:
+                btnShowColl(v);
+                break;
         }
     }
-
 
     class GetAllTaskListFromDBAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskList>> {
 

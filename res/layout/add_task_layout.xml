@@ -115,11 +115,13 @@
                         android:textColor="@android:color/holo_blue_light"
                         />
                 <View android:layout_weight="1"/>
-                <ImageView
+                <ImageButton
+                        android:id="@+id/btnShowColl"
                         android:layout_marginRight="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:src="@drawable/ic_action_add_person"
+                        android:background="@android:color/transparent"
                         android:layout_gravity="center"
                         />
             </TableRow>

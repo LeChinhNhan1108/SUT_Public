@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Obama"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+            />
+
+    <TextView
+            android:layout_marginTop="10dp"
+            android:id="@+id/tvEmail"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Obama@gmail.com"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:layout_below="@id/tvName"
+            android:textColor="@color/cyan"
+            />
+
+    <ImageButton
+            android:id="@+id/btnRemove"
+            android:layout_alignTop="@id/tvName"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_remove"
+            android:background="@android:color/transparent"
+            android:layout_alignParentRight="true"
+            />
+
+</RelativeLayout>
