@@ -48,6 +48,8 @@ public class TaskTable implements BaseColumns {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         Cursor c = db.query(false, TABLE_NAME, null, FIELD_GROUP + "=" + id, null, null, null, null, null);
 
+
+
         if (!c.moveToFirst()) return tasks;
         tasks = new ArrayList<Task>();
         while (!c.isAfterLast()) {
@@ -91,11 +93,17 @@ public class TaskTable implements BaseColumns {
         return db.insert(TABLE_NAME, null, values);
     }
 
-
-    public static void updateTask(Context context, Task task) {
+    public static int updateTaskRemoteId(Context context, String remoteID, long taskLocalId){
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
-        L.e("Update task");
+        values.put(FIELD_REMOTE_ID, remoteID);
+        return db.update(TABLE_NAME,values,_ID +"="+taskLocalId,null);
+    }
+
+
+    public static int updateTask(Context context, Task task) {
+        SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
+        ContentValues values = new ContentValues();
 
         values.put(FIELD_TITLE, task.getTitle());
         values.put(FIELD_DUE_DATE, task.getDue() != null ? task.getDue().getValue() : 0);
@@ -107,17 +115,14 @@ public class TaskTable implements BaseColumns {
         values.put(FIELD_REMOTE_ID, task.getId());
 
         int result = db.update(TABLE_NAME, values, _ID + "=" + task.get(TaskTable._ID), null);
-        L.e("Result " + result);
+        L.e("Update task: " + result + " record is updated");
+        return result;
     }
 
     public static int deleteTask(Context context, long id) {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         return db.delete(TABLE_NAME, _ID + "=" + id, null);
     }
-
-//    public enum PRIORITY {
-//        HIGH, MEDIUM, LOW
-//    }
 
     public enum PRIORITY {
         LOW, MEDIUM, HIGH

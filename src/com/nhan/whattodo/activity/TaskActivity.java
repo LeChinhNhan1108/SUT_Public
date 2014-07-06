@@ -54,14 +54,15 @@ public class TaskActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.addTask:
-                L.e("task group id  TASK LIST AC " + taskGroupId);
-                getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, AddTaskFragment.newInstance(taskGroupId)).addToBackStack("AddTaskFragment").commit();
+                getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer,
+                        AddTaskFragment.newInstance(taskGroupId)).addToBackStack("AddTaskFragment").commit();
                 return true;
+            case R.id.removeTask:
+                return false;
         }
 
         return false;
     }
-
     public void showTaskListFragment(ArrayList<Task> tasks){
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
         if (tasks == null) return;

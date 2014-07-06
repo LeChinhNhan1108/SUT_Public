@@ -3,6 +3,7 @@ package com.nhan.whattodo.fragment;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -56,24 +57,41 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
 
     public void refreshListView(ArrayList<Task> tasks) {
         L.e("Refresh View");
-        if (tasks != null && !tasks.isEmpty()){
+        if (tasks != null && !tasks.isEmpty()) {
             this.tasks.clear();
             this.tasks.addAll(tasks);
             TaskAdapter adapter = new TaskAdapter(getActivity(), R.layout.task_item, this.tasks);
             setListAdapter(adapter);
-        }else{
+        } else {
             L.t(getActivity(), "No thing to show");
             setListShown(true);
         }
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        L.t(getActivity(), "Id " + id + " -- " + tasks.get(position).get(TaskTable._ID));
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.removeTask:
+                L.t(getActivity(), "REMOVE TASK ");
+                removeCompletedTask();
+                return true;
+        }
+        return false;
+    }
+
+    private void removeCompletedTask() {
+        //TODO: Currently working here
+        for (Task task : tasks) {
+            L.e(task.getTitle() + " - " + task.getStatus());
+        }
 
     }
 
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        L.t(getActivity(), "Id " + id + " -- " + tasks.get(position).get(TaskTable._ID));
+    }
 
     public long getTaskGroupId() {
         return taskGroupId;
@@ -82,7 +100,8 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         L.e("Long click");
-//        getActivity().getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, )
+        getActivity().getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer,
+                AddTaskFragment.newInstance(tasks.get(position))).addToBackStack("UpdateTaskFragment").commit();
         return true;
     }
 }

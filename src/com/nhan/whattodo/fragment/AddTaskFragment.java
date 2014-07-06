@@ -21,10 +21,7 @@ import com.nhan.whattodo.activity.TaskActivity;
 import com.nhan.whattodo.adapter.TaskListAdapter;
 import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.data_manager.TaskTable;
-import com.nhan.whattodo.utils.GoogleTaskHelper;
-import com.nhan.whattodo.utils.GoogleTaskManager;
-import com.nhan.whattodo.utils.L;
-import com.nhan.whattodo.utils.Utils;
+import com.nhan.whattodo.utils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,10 +44,21 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     ArrayList<Collaborator> collaborators;
 
 
+    // Use when updating task
+    Task taskToUpdate;
+
+
     public static AddTaskFragment newInstance(long taskGroupId) {
 
         AddTaskFragment addTaskFragment = new AddTaskFragment();
         addTaskFragment.taskGroupId = taskGroupId;
+        return addTaskFragment;
+    }
+
+    public static AddTaskFragment newInstance(Task taskToUpdate) {
+
+        AddTaskFragment addTaskFragment = new AddTaskFragment();
+        addTaskFragment.taskToUpdate = taskToUpdate;
         return addTaskFragment;
     }
 
@@ -75,6 +83,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity()
                 , android.R.layout.simple_spinner_dropdown_item, getPriorityString(TaskTable.PRIORITY.class));
         spinnerPriority.setAdapter(adapter);
+
         spinnerPriority.setSelection(TaskTable.PRIORITY.MEDIUM.ordinal());
 
         // Set up Spinner Task Group
@@ -89,8 +98,10 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             e.printStackTrace();
         }
 
+
         // Since index = 0, id = 1
         taskListSpinner.setSelection((int) taskGroupId - 1);
+
 
         edtTitle = (EditText) view.findViewById(R.id.edtTitle);
         edtNote = (EditText) view.findViewById(R.id.edtNote);
@@ -110,8 +121,23 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         calendar.setTimeZone(TimeZone.getDefault());
         dueDate = calendar.getTimeInMillis();
         collaborators = new ArrayList<Collaborator>();
+
+        if (taskToUpdate != null) {
+
+            spinnerPriority.setSelection(Integer.parseInt(taskToUpdate.get(TaskTable.FIELD_PRIORITY).toString()));
+            taskListSpinner.setSelection(Integer.parseInt(taskToUpdate.get(TaskTable.FIELD_GROUP).toString()) - 1);
+
+            edtTitle.setText(taskToUpdate.getTitle());
+            edtNote.setText(taskToUpdate.getNotes());
+            if (taskToUpdate.getDue() != null)
+                dueDate = taskToUpdate.getDue().getValue();
+            collaborators.addAll(stringToCollaborator((String) taskToUpdate.get(TaskTable.FIELD_COLLABORATOR)));
+        }
+
         btnDue.setText("Due " + Utils.convertDateToString(dueDate));
         btnRemind.setText("Remind " + Utils.convertTimeToString(dueDate));
+
+
     }
 
     /* Date Picker Dialog */
@@ -175,49 +201,104 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        L.e("Resume");
-        if (collaborators == null || collaborators.isEmpty()) return;
-        L.e("Cooll " + collaborators.toString());
     }
 
     private void saveTask() {
+        DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,getActivity(),getString(R.string.wait_for_sync));
+
         String title = edtTitle.getText().toString();
         if (title.isEmpty()) return;
 
-        int priority = spinnerPriority.getSelectedItemPosition();
+        final int priority = spinnerPriority.getSelectedItemPosition();
         long dueDate = this.dueDate;
         final long parent_id = taskListSpinner.getSelectedItemId();
-        String collaborators = collaboratorToString(this.collaborators);
+        final String collaborators = collaboratorToString(this.collaborators);
         String note = edtNote.getText().toString();
 
-        final Task task = new Task();
-        task.setTitle(title);
-        task.set(TaskTable.FIELD_PRIORITY, priority);
-        task.setDue(new DateTime(dueDate));
-        task.set(TaskTable.FIELD_GROUP, parent_id);
-        task.set(TaskTable.FIELD_COLLABORATOR, collaborators);
-        task.setNotes(note);
+        if (taskToUpdate != null) {
+            L.e("Before update " + taskToUpdate);
+            final long currentGroupId = (Long) taskToUpdate.get(TaskTable.FIELD_GROUP);
 
+            taskToUpdate.setTitle(title);
+            taskToUpdate.setDue(new DateTime(dueDate));
+            taskToUpdate.setNotes(note);
+            taskToUpdate.set(TaskTable.FIELD_PRIORITY, priority);
+            taskToUpdate.set(TaskTable.FIELD_GROUP, parent_id);
+            taskToUpdate.set(TaskTable.FIELD_COLLABORATOR, collaborators);
 
-//        L.e("Task added " + task.toString());
-
-        long result = TaskTable.insertTask(getActivity(), task);
-        if (result != -1) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
-                    String remoteId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
-//                    L.e("Parent id " + parent_id);
-//                    L.e("Remote id " + remoteId);
-                    GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteId, task);
+                    String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), currentGroupId);
+                    L.e("Update " + remoteParentId + " " + taskToUpdate.getId());
+                    Task updatedTask = GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), remoteParentId
+                            , taskToUpdate.getId(), taskToUpdate);
+                    if (updatedTask != null) {
+                        TaskTable.updateTask(getActivity(), taskToUpdate);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                getActivity().onBackPressed();
+                                DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
+                            }
+                        });
+                    }
                 }
             }).start();
-            getActivity().onBackPressed();
         } else {
-            L.e("Hic Error");
-        }
 
+            final Task task = new Task();
+            task.setTitle(title);
+            task.setDue(new DateTime(dueDate));
+            task.setNotes(note);
+            task.setStatus(TaskTable.STATUS_NEED_ACTION);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
+                    Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
+                    if (remoteTask != null) {
+
+                        remoteTask.set(TaskTable.FIELD_PRIORITY, priority);
+                        remoteTask.set(TaskTable.FIELD_GROUP, parent_id);
+                        remoteTask.set(TaskTable.FIELD_COLLABORATOR, collaborators);
+                        remoteTask.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
+
+                        long result = TaskTable.insertTask(getActivity(), remoteTask);
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                getActivity().onBackPressed();
+                                DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
+                            }
+                        });
+                        L.e(result + " task added");
+                    }
+                }
+            }).start();
+
+
+//            final long result = TaskTable.insertTask(getActivity(), task);
+//            if (result != -1) {
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
+//                        Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
+//
+//                        // Add the remoteId
+//                        int resultUpdate = TaskTable.updateTaskRemoteId(getActivity(),remoteTask.getId(),result);
+//                        L.e("UPDATE REMOTE ID RESULT " + resultUpdate);
+//
+//                    }
+//                }).start();
+//                getActivity().onBackPressed();
+//            } else {
+//                L.e("Hic Error");
+//            }
+        }
     }
 
     public static final String DELIMITER = ";";
@@ -231,6 +312,17 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             result.deleteCharAt(result.lastIndexOf(DELIMITER));
         }
         return result.toString();
+    }
+
+    public ArrayList<Collaborator> stringToCollaborator(String coll) {
+        ArrayList<Collaborator> temp = new ArrayList<Collaborator>();
+        if (coll == null || coll.isEmpty()) return temp;
+        String[] items = coll.split(DELIMITER);
+        for (String item : items) {
+            String[] split = item.split(",");
+            temp.add(new Collaborator(split[0], split[1], split[2], split[3]));
+        }
+        return temp;
     }
 
     public void readContacts() {
@@ -284,11 +376,8 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-
         if (requestCode == REQUEST_GET_CONTACT && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            L.e("REsult code " + uri.toString());
             String[] projection = {ContactsContract.CommonDataKinds.Email.CONTACT_ID, ContactsContract.CommonDataKinds.Email.ADDRESS
                     , ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER
             };
@@ -296,8 +385,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             Cursor cursor = getActivity().getContentResolver()
                     .query(uri, projection, null, null, null);
             cursor.moveToFirst();
-
-            L.e("Cursor " + cursor.getCount());
 
             int column1 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
             int column2 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
@@ -311,16 +398,11 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                     , ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{contactID}, null);
 
             cursor.moveToFirst();
-
             int column4 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-
             String phone = cursor.getString(column4);
-
-            L.e(contactID + " " + email + " " + name + " " + phone);
 
             collaborators.add(new Collaborator(contactID, name, email, phone));
         }
-
     }
 
     public class Collaborator {
@@ -378,16 +460,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             TaskActivity activity = (TaskActivity) params[0];
             return TaskListTable.getAllTaskList(activity);
         }
-
-    }
-
-    class GetContactAsync extends AsyncTask<Activity, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Activity... params) {
-            return null;
-        }
-
 
     }
 }

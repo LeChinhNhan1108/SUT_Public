@@ -42,7 +42,6 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
             tl.set(TaskListTable._ID, localID);
             Tasks tasks = GoogleTaskManager.getAllTaskInTaskList(activity.getService(), tl.getId());
             if (tasks.getItems() == null || tasks.getItems().size() == 0) continue;
-
             for (Task task : tasks.getItems()) {
                 task.set(TaskTable.FIELD_PRIORITY, TaskTable.PRIORITY.LOW.ordinal());
                 task.set(TaskTable.FIELD_GROUP, localID);
@@ -81,6 +80,14 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
         localID = TaskListTable.insertTaskList(activity, newTaskList);
         newTaskList.set(TaskListTable._ID, localID);
         taskLists.add(newTaskList);
+
+//        for (int i = 1; i <= 5; i++) {
+//            newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Testing " + i);
+//            localID = TaskListTable.insertTaskList(activity, newTaskList);
+//            newTaskList.set(TaskListTable._ID, localID);
+//            taskLists.add(newTaskList);
+//        }
+
         return taskLists;
     }
 

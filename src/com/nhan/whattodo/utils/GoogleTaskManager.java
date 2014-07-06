@@ -67,4 +67,13 @@ public class GoogleTaskManager {
         }
         return null;
     }
+
+    public static Task updateTask(Tasks service, String taskListId, String taskId, Task task){
+        try {
+            return service.tasks().update(taskListId,taskId,task).execute();
+        } catch (IOException e) {
+            L.e(e.getMessage());
+        }
+        return null;
+    }
 }
