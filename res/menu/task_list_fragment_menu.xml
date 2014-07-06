@@ -6,6 +6,11 @@
           android:showAsAction="always"
             />
 
+    <item android:id="@+id/updateTask"
+          android:title="Update Status"
+          android:showAsAction="always"
+            />
+
     <item android:id="@+id/removeTask"
           android:title="Remove"
           android:showAsAction="always"

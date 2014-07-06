@@ -76,4 +76,8 @@ public class GoogleTaskManager {
         }
         return null;
     }
+
+    public static void deleteTask(Tasks service, String taskListId, String taskId) throws IOException {
+        service.tasks().delete(taskListId,taskId).execute();
+    }
 }

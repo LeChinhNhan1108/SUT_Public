@@ -12,7 +12,6 @@ import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.TaskList;
 import com.nhan.whattodo.R;
 import com.nhan.whattodo.asyntask.TaskListAsynTask;
-import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.fragment.TGListFragment;
 import com.nhan.whattodo.utils.DialogUtils;
 import com.nhan.whattodo.utils.GoogleTaskHelper;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 public class TaskListActivity extends Activity {
 
     private Tasks service;
+    private ArrayList<TaskList> taskLists;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,14 +39,15 @@ public class TaskListActivity extends Activity {
     protected void onResume() {
         super.onResume();
         int googleServiceAvailable = GoogleTaskHelper.checkGooglePlayServiceAvailability(this);
-        service = GoogleTaskHelper.getTaskService(this,googleServiceAvailable);
+        service = GoogleTaskHelper.getTaskService(this, googleServiceAvailable);
 
-        if (service != null){
-            DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,this,getString(R.string.wait_for_sync));
-            new TaskListAsynTask().execute(this);
+        if (service != null) {
+            if (taskLists == null){
+                DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG, this, getString(R.string.wait_for_sync));
+                new TaskListAsynTask().execute(this);
+            }
         }
     }
-
 
 
     @Override
@@ -58,7 +59,7 @@ public class TaskListActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.task_group_activity_menu,menu);
+        getMenuInflater().inflate(R.menu.task_group_activity_menu, menu);
         return true;
     }
 
@@ -71,13 +72,13 @@ public class TaskListActivity extends Activity {
                 GoogleTaskManager.clearAllTaskList(getService());
             }
         }).start();
-        return  true;
+        return true;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        GoogleTaskHelper.onCredentialActivityResult(this,requestCode,resultCode,data);
+        GoogleTaskHelper.onCredentialActivityResult(this, requestCode, resultCode, data);
     }
 
     private void setupActionbar() {
@@ -87,9 +88,10 @@ public class TaskListActivity extends Activity {
 
     }
 
-    public void showTGFragment(ArrayList<TaskList> taskLists){
+    public void showTGFragment(ArrayList<TaskList> taskLists) {
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
         if (taskLists == null) return;
+        this.taskLists = taskLists;
         getFragmentManager().beginTransaction().replace(R.id.taskGroupFragmentContainer, TGListFragment.newInstance(taskLists)).commit();
     }
 

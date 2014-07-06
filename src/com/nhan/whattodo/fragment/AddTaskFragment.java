@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.telephony.SmsManager;
 import android.view.*;
 import android.widget.*;
 import com.google.api.client.util.DateTime;
@@ -187,24 +188,38 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    boolean notifyColl = false;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.saveTask:
-                saveTask();
+                notifyColl = false;
+                DialogFragment dialogFragment = DialogFragment.newInstance("Confirm Dialog", "Notify all collboratos",
+                        new DialogFragment.IPositiveDialogClick() {
+                            @Override
+                            public void onClick() {
+                                notifyColl = true;
+                            }
+                        });
+                dialogFragment.setCancelable(false);
+                dialogFragment.setDismissAction(new DialogFragment.IOnDismiss() {
+                    @Override
+                    public void onDimiss() {
+                        if (notifyColl) {
+
+                        }
+                        saveTask();
+                    }
+                });
+                dialogFragment.show(getFragmentManager(), "Confirm Dialog");
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
     private void saveTask() {
-        DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG,getActivity(),getString(R.string.wait_for_sync));
 
         String title = edtTitle.getText().toString();
         if (title.isEmpty()) return;
@@ -215,6 +230,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         final String collaborators = collaboratorToString(this.collaborators);
         String note = edtNote.getText().toString();
 
+        DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG, getActivity(), getString(R.string.wait_for_sync));
         if (taskToUpdate != null) {
             L.e("Before update " + taskToUpdate);
             final long currentGroupId = (Long) taskToUpdate.get(TaskTable.FIELD_GROUP);
@@ -267,6 +283,11 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
 
                         long result = TaskTable.insertTask(getActivity(), remoteTask);
 
+                        for (Collaborator collaborator : AddTaskFragment.this.collaborators) {
+                            if (collaborator.phone != null || !collaborator.phone.isEmpty()) {
+                                sendSMS(collaborator.phone, "Hello");
+                            }
+                        }
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -278,28 +299,11 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                     }
                 }
             }).start();
-
-
-//            final long result = TaskTable.insertTask(getActivity(), task);
-//            if (result != -1) {
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
-//                        Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
-//
-//                        // Add the remoteId
-//                        int resultUpdate = TaskTable.updateTaskRemoteId(getActivity(),remoteTask.getId(),result);
-//                        L.e("UPDATE REMOTE ID RESULT " + resultUpdate);
-//
-//                    }
-//                }).start();
-//                getActivity().onBackPressed();
-//            } else {
-//                L.e("Hic Error");
-//            }
         }
     }
+
+
+    /* Helper functions & classes*/
 
     public static final String DELIMITER = ";";
 
@@ -312,6 +316,39 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             result.deleteCharAt(result.lastIndexOf(DELIMITER));
         }
         return result.toString();
+    }
+
+    /* Get contact info for collaborators */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_GET_CONTACT && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            String[] projection = {ContactsContract.CommonDataKinds.Email.CONTACT_ID, ContactsContract.CommonDataKinds.Email.ADDRESS
+                    , ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER
+            };
+
+            Cursor cursor = getActivity().getContentResolver()
+                    .query(uri, projection, null, null, null);
+            cursor.moveToFirst();
+
+            int column1 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
+            int column2 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
+            int column3 = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+
+            String contactID = cursor.getString(column1);
+            String email = cursor.getString(column2);
+            String name = cursor.getString(column3);
+
+            cursor = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null
+                    , ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{contactID}, null);
+
+            cursor.moveToFirst();
+            int column4 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+            String phone = cursor.getString(column4);
+
+            collaborators.add(new Collaborator(contactID, name, email, phone));
+        }
     }
 
     public ArrayList<Collaborator> stringToCollaborator(String coll) {
@@ -373,38 +410,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_GET_CONTACT && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
-            String[] projection = {ContactsContract.CommonDataKinds.Email.CONTACT_ID, ContactsContract.CommonDataKinds.Email.ADDRESS
-                    , ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER
-            };
-
-            Cursor cursor = getActivity().getContentResolver()
-                    .query(uri, projection, null, null, null);
-            cursor.moveToFirst();
-
-            int column1 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID);
-            int column2 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
-            int column3 = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-
-            String contactID = cursor.getString(column1);
-            String email = cursor.getString(column2);
-            String name = cursor.getString(column3);
-
-            cursor = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null
-                    , ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{contactID}, null);
-
-            cursor.moveToFirst();
-            int column4 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-            String phone = cursor.getString(column4);
-
-            collaborators.add(new Collaborator(contactID, name, email, phone));
-        }
-    }
-
     public class Collaborator {
 
         public String contact_id, name, email, phone;
@@ -426,9 +431,9 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.add_task_fragment_menu, menu);
         menu.findItem(R.id.addTask).setVisible(false);
+        menu.findItem(R.id.updateTask).setVisible(false);
         menu.findItem(R.id.removeTask).setVisible(false);
     }
-
 
     public static String[] getPriorityString(Class<? extends Enum<?>> e) {
         L.e(Arrays.toString(e.getEnumConstants()));
@@ -451,6 +456,13 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                 btnShowColl(v);
                 break;
         }
+    }
+
+
+    private final String SMS_HEADER = "WHAT2DO_NEW_TASK\n";
+    public void sendSMS(String phone, String mess) {
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phone, null, SMS_HEADER + mess, null, null);
     }
 
     class GetAllTaskListFromDBAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskList>> {

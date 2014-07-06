@@ -93,10 +93,12 @@ public class TaskTable implements BaseColumns {
         return db.insert(TABLE_NAME, null, values);
     }
 
-    public static int updateTaskRemoteId(Context context, String remoteID, long taskLocalId){
+    public static int updateTaskStatus(Context context, long taskLocalId, String status){
+        L.e("Update Status " + taskLocalId + " -- " + status);
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
-        values.put(FIELD_REMOTE_ID, remoteID);
+        values.put(FIELD_COMPLETION_STATUS, status);
+
         return db.update(TABLE_NAME,values,_ID +"="+taskLocalId,null);
     }
 

@@ -76,12 +76,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         cbCompleted.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    data.get(position).setStatus(TaskTable.STATUS_COMPLETED);
-
-                } else {
-                    data.get(position).setStatus(TaskTable.STATUS_NEED_ACTION);
-                }
+                data.get(position).setStatus(isChecked ? TaskTable.STATUS_COMPLETED : TaskTable.STATUS_NEED_ACTION);
                 notifyDataSetChanged();
             }
         });

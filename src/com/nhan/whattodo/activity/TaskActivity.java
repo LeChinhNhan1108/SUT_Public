@@ -63,6 +63,7 @@ public class TaskActivity extends Activity {
 
         return false;
     }
+
     public void showTaskListFragment(ArrayList<Task> tasks){
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
         if (tasks == null) return;
