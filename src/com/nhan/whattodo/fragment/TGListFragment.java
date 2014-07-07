@@ -16,9 +16,11 @@ import com.nhan.whattodo.adapter.TaskListAdapter;
 import com.nhan.whattodo.utils.L;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
- * Created by ivanle on 6/29/14.
+ * Created by ivanle on 6/29/14. All rights reserved
  */
 public class TGListFragment extends ListFragment {
 

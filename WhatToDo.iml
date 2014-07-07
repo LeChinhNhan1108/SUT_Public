@@ -19,6 +19,7 @@
     <orderEntry type="library" name="google-play-services" level="project" />
     <orderEntry type="library" name="google-api-services-tasks-v1-rev33-1.18.0-rc" level="project" />
     <orderEntry type="library" name="commons-logging-1.1.1" level="project" />
+    <orderEntry type="library" name="android-support-v4" level="project" />
   </component>
 </module>
 

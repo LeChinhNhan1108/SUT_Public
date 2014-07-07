@@ -16,10 +16,7 @@ import com.nhan.whattodo.adapter.TaskAdapter;
 import com.nhan.whattodo.asyntask.TaskAsynTaskFragment;
 import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.data_manager.TaskTable;
-import com.nhan.whattodo.utils.DialogUtils;
-import com.nhan.whattodo.utils.GoogleTaskHelper;
-import com.nhan.whattodo.utils.GoogleTaskManager;
-import com.nhan.whattodo.utils.L;
+import com.nhan.whattodo.utils.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -140,8 +137,11 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
                 Task result = GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), parentRemoteId, task.getId(), task);
-                if (result != null)
+                if (result != null) {
                     TaskTable.updateTaskStatus(getActivity(), (Long) task.get(TaskTable._ID), task.getStatus());
+//                    if (task.getStatus().equalsIgnoreCase(TaskTable.STATUS_COMPLETED))
+//                        Utils.cancelAlarm(getActivity(), (Integer.parseInt(task.get(TaskTable._ID) + "")));
+                }
             }
 
             return null;
@@ -160,12 +160,13 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
         protected Void doInBackground(Activity... params) {
             String parentRemoteId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), taskGroupId);
 
-            for (int i = tasks.size()-1; i >= 0; i--) {
+            for (int i = tasks.size() - 1; i >= 0; i--) {
                 Task task = tasks.get(i);
                 if (task.getStatus().equalsIgnoreCase(TaskTable.STATUS_NEED_ACTION)) continue;
                 try {
                     GoogleTaskManager.deleteTask(GoogleTaskHelper.getService(), parentRemoteId, task.getId());
-                    TaskTable.deleteTask(getActivity(),(Long)task.get(TaskTable._ID));
+                    TaskTable.deleteTask(getActivity(), (Long) task.get(TaskTable._ID));
+                    Utils.cancelAlarm(getActivity(), (Integer.parseInt(task.get(TaskTable._ID) + "")));
                     tasks.remove(task);
                 } catch (IOException e) {
                     L.e(e.getMessage());

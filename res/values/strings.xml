@@ -7,5 +7,11 @@
     <string name="wait_for_sync">PLEASE WAIT</string>
     <string name="task_title_dummy">This is the task title. If the title is tooo looong</string>
     <string name="task_due_dummy">Due on Sat 25 July</string>
+    <string name="contact_no_phone">Contact has no phone: %s</string>
+    <string name="update_error">Update Error !</string>
+    <string name="SMS_HEADER">WHAT2DO_NEW_TASK\n</string>
+    <string name="update_success">Task updated successfully</string>
+    <string name="add_task_success">Task added successfully</string>
+    <string name="add_task_error">Add task error</string>
 
 </resources>

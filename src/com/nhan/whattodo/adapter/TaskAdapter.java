@@ -44,16 +44,11 @@ public class TaskAdapter extends ArrayAdapter<Task> {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        View v = convertView;
-
-        if (v == null) {
-            v = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(resource, null);
-        }
+        View v = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(resource, null);
 
         TextView tvTaskTitle = (TextView) v.findViewById(R.id.tvTaskTitle);
         TextView tvTaskDue = (TextView) v.findViewById(R.id.tvTaskDue);
         CheckBox cbCompleted = (CheckBox) v.findViewById(R.id.cbxComplete);
-
 
         boolean completed = data.get(position).getStatus() != null && data.get(position).getStatus().equalsIgnoreCase(TaskTable.STATUS_COMPLETED);
         cbCompleted.setChecked(completed);
