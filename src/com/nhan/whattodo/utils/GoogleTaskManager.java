@@ -1,5 +1,7 @@
 package com.nhan.whattodo.utils;
 
+import android.app.Activity;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -18,8 +20,8 @@ public class GoogleTaskManager {
     public static TaskLists getAllTaskList(Tasks service) {
         try {
             return service.tasklists().list().execute();
-        } catch (IOException e) {
-            L.e(e.getMessage());
+        }  catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -44,13 +46,24 @@ public class GoogleTaskManager {
                 service.tasklists().delete(temp.getItems().get(i).getId()).execute();
             } catch (IOException e) {
                 L.e("Default Task Cannot Be Deleted");
+                com.google.api.services.tasks.model.Tasks tasks = getAllTaskInTaskList(service, temp.getItems().get(i).getId());
+                L.e(tasks.getItems().size() + " items");
+                for (int j = 0; j < tasks.getItems().size(); j++) {
+                    try {
+                        service.tasks().delete(temp.getItems().get(i).getId(), tasks.getItems().get(j).getId()).execute();
+                    } catch (IOException e1) {
+                        L.e("Task in Default cannot be deleted");
+
+                    }
+                }
+                L.e("Clear all task in Default");
             }
         }
     }
 
 
     /* Task Manager */
-    public static com.google.api.services.tasks.model.Tasks getAllTaskInTaskList(Tasks service, String taskListID){
+    public static com.google.api.services.tasks.model.Tasks getAllTaskInTaskList(Tasks service, String taskListID) {
         try {
             return service.tasks().list(taskListID).execute();
         } catch (IOException e) {
@@ -59,7 +72,7 @@ public class GoogleTaskManager {
         return null;
     }
 
-    public static Task insertTask(Tasks service,String parentId, Task task) {
+    public static Task insertTask(Tasks service, String parentId, Task task) {
         try {
             return service.tasks().insert(parentId, task).execute();
         } catch (IOException e) {
@@ -68,9 +81,9 @@ public class GoogleTaskManager {
         return null;
     }
 
-    public static Task updateTask(Tasks service, String taskListId, String taskId, Task task){
+    public static Task updateTask(Tasks service, String taskListId, String taskId, Task task) {
         try {
-            return service.tasks().update(taskListId,taskId,task).execute();
+            return service.tasks().update(taskListId, taskId, task).execute();
         } catch (IOException e) {
             L.e(e.getMessage());
         }
@@ -78,6 +91,6 @@ public class GoogleTaskManager {
     }
 
     public static void deleteTask(Tasks service, String taskListId, String taskId) throws IOException {
-        service.tasks().delete(taskListId,taskId).execute();
+        service.tasks().delete(taskListId, taskId).execute();
     }
 }

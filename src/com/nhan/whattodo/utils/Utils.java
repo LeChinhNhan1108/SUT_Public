@@ -8,6 +8,7 @@ import com.google.api.client.util.DateTime;
 import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.receiver.AlarmReceiver;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,17 +19,54 @@ public class Utils {
 
     /* Date Time Format */
 
+    private static final String DATE_PATTERN = "EEE, dd-MM-yyyy";
+    private static final String TIME_PATTERN = "HH:mm";
+
+    private static final String DATE_TIME_PATTERN = "EEE, dd-MM-yyyy HH:mm";
+
+
+
     public static String convertDateToString(long value){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd-MM-yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN);
         Date date  = new Date(value);
         return simpleDateFormat.format(date);
     }
 
     public static String convertTimeToString(long value){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIME_PATTERN);
         Date date  = new Date(value);
         return simpleDateFormat.format(date);
     }
+
+    public static long convertStringToDate(String date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN);
+        try {
+            return simpleDateFormat.parse(date).getTime();
+        } catch (ParseException e) {
+        }
+        return 0;
+    }
+
+    public static long convertStringToTime(String date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIME_PATTERN);
+        try {
+            return simpleDateFormat.parse(date).getTime();
+        } catch (ParseException e) {
+
+        }
+        return 0;
+    }
+
+    public static long convertStringToDateTime(String dateTime){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_PATTERN);
+        try {
+            return simpleDateFormat.parse(dateTime).getTime();
+        } catch (ParseException e) {
+
+        }
+        return 0;
+    }
+
 
     public static void setAlarm(Context context, long triggerAt, int taskId, String taskTitle) {
 

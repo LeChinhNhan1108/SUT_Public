@@ -28,10 +28,12 @@ public class GoogleTaskHelper {
 
     public static final int GOOGLE_PLAY_SERVICE_REQUEST = 1;
     public static final int CREDENTIAL_REQUEST = 2;
-
+    public static final int GOOGLE_PERMISSION_REQUEST = 3;
 
     private static final String PREF_NAME = "What2do";
     private static final String KEY_ACC = "Account";
+    private static final String KEY_PERMISSION = "Permission";
+
 
     private static GoogleAccountCredential credential;
     private static Tasks service;
@@ -87,10 +89,24 @@ public class GoogleTaskHelper {
     }
 
 
-    public static String getAccFromSharePref(Activity activity) {
+    public static String getAccFromSharePref(Context activity) {
         SharedPreferences sharedPreferences = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.getString(KEY_ACC, null);
     }
+
+
+    public static void savePermissionToPref(Activity activity, boolean hasPermission) {
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_PERMISSION, hasPermission).commit();
+    }
+
+
+    public static boolean getPermissionFromSharePref(Activity activity) {
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean(KEY_PERMISSION, false);
+    }
+
 
     public static Tasks getService() {
         if (service == null) {

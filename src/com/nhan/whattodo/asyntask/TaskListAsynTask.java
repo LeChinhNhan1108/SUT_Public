@@ -81,13 +81,6 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
         newTaskList.set(TaskListTable._ID, localID);
         taskLists.add(newTaskList);
 
-//        for (int i = 1; i <= 5; i++) {
-//            newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Testing " + i);
-//            localID = TaskListTable.insertTaskList(activity, newTaskList);
-//            newTaskList.set(TaskListTable._ID, localID);
-//            taskLists.add(newTaskList);
-//        }
-
         return taskLists;
     }
 

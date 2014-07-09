@@ -1,7 +1,9 @@
 package com.nhan.whattodo.fragment;
 
-import android.app.*;
-import android.content.Context;
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Fragment;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -19,8 +21,6 @@ import com.nhan.whattodo.activity.TaskActivity;
 import com.nhan.whattodo.adapter.TaskListAdapter;
 import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.data_manager.TaskTable;
-import com.nhan.whattodo.receiver.AlarmReceiver;
-import com.nhan.whattodo.utils.DialogFragment;
 import com.nhan.whattodo.utils.*;
 
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
 
 
         calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getDefault());
+//        calendar.setTimeZone(TimeZone.getDefault());
         dueDate = calendar.getTimeInMillis();
         collaborators = new ArrayList<Collaborator>();
 
@@ -130,6 +130,8 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             if (taskToUpdate.getDue() != null)
                 dueDate = taskToUpdate.getDue().getValue();
             collaborators.addAll(stringToCollaborator((String) taskToUpdate.get(TaskTable.FIELD_COLLABORATOR)));
+
+//            L.e("Date " + dueDate);
         }
 
         btnDue.setText("Due " + Utils.convertDateToString(dueDate));
@@ -269,7 +271,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                                 if (updateResult != 0) {
                                     L.t(getActivity(), getString(R.string.update_success));
                                     if (priority == TaskTable.PRIORITY.HIGH.ordinal())
-                                        Utils.setAlarm(getActivity(),dueDate, Integer.parseInt(taskToUpdate.get(TaskTable._ID)+"") , title);
+                                        Utils.setAlarm(getActivity(), dueDate, Integer.parseInt(taskToUpdate.get(TaskTable._ID) + ""), title);
 
                                     getActivity().onBackPressed();
                                 } else {
@@ -294,16 +296,16 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                     String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
                     Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
                     if (remoteTask != null) {
-                        remoteTask.set(TaskTable.FIELD_PRIORITY, priority);
-                        remoteTask.set(TaskTable.FIELD_GROUP, parent_id);
-                        remoteTask.set(TaskTable.FIELD_COLLABORATOR, collaborators);
-                        remoteTask.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
+                        task.set(TaskTable.FIELD_PRIORITY, priority);
+                        task.set(TaskTable.FIELD_GROUP, parent_id);
+                        task.set(TaskTable.FIELD_COLLABORATOR, collaborators);
+                        task.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
 
-                        final long insertedTaskId = TaskTable.insertTask(getActivity(), remoteTask);
+                        final long insertedTaskId = TaskTable.insertTask(getActivity(), task);
                         if (notifyColl) {
                             for (Collaborator collaborator : AddTaskFragment.this.collaborators) {
                                 if (collaborator.phone != null && !collaborator.phone.isEmpty()) {
-                                    sendSMS(collaborator.phone, "Hello");
+                                    sendSMS(collaborator.phone, task);
                                 } else {
                                     collaboratorsWithoutPhone += collaborator.name + "\n";
                                 }
@@ -321,7 +323,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                                     L.t(getActivity(), String.format(getString(R.string.contact_no_phone), collaboratorsWithoutPhone));
 
                                 if (priority == TaskTable.PRIORITY.HIGH.ordinal())
-                                    Utils.setAlarm(getActivity(),dueDate, (int)insertedTaskId, title);
+                                    Utils.setAlarm(getActivity(), dueDate, (int) insertedTaskId, title);
 
                                 getActivity().onBackPressed();
                             }
@@ -495,9 +497,31 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public void sendSMS(String phone, String mess) {
+    public static final String DELIMETER1 = ": ";
+    public static final String DELIMETER_NL = "\n";
+
+    public static String TITLE_HEADER = "Task";
+    public static String DUEDATE_HEADER = "Due date";
+    public static String DUETIME_HEADER = "Time";
+    public static String PRIORITY_HEADER = "Priority";
+    public static String GROUP_HEADER = "Group";
+    public static String NOTE_HEADER = "Note";
+
+
+    public void sendSMS(String phone, Task task) {
         SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phone, null, getString(R.string.SMS_HEADER) + mess, null, null);
+
+        L.e("Date time "+task.getDue().getValue());
+
+        String mess = getString(R.string.SMS_HEADER);
+        mess += TITLE_HEADER + DELIMETER1 + task.getTitle() + DELIMETER_NL;
+        mess += DUEDATE_HEADER + DELIMETER1 + Utils.convertDateToString(task.getDue().getValue()) + DELIMETER_NL;
+        mess += DUETIME_HEADER + DELIMETER1 + Utils.convertTimeToString(task.getDue().getValue()) + DELIMETER_NL;
+        mess += PRIORITY_HEADER + DELIMETER1 + TaskTable.getStringPriority((Integer)task.get(TaskTable.FIELD_PRIORITY)) + DELIMETER_NL;
+        mess += GROUP_HEADER + DELIMETER1 + task.get(TaskTable.FIELD_GROUP) + DELIMETER_NL;
+        mess += NOTE_HEADER + DELIMETER1 + task.getNotes();
+
+        smsManager.sendTextMessage(phone, null, mess, null, null);
     }
 
     class GetAllTaskListFromDBAsyncTask extends AsyncTask<Activity, Void, ArrayList<TaskList>> {

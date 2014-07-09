@@ -10,7 +10,6 @@ import com.google.api.services.tasks.model.Task;
 import com.nhan.whattodo.utils.L;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ivanle on 7/3/14.
@@ -49,7 +48,6 @@ public class TaskTable implements BaseColumns {
         Cursor c = db.query(false, TABLE_NAME, null, FIELD_GROUP + "=" + id, null, null, null, null, null);
 
 
-
         if (!c.moveToFirst()) return tasks;
         tasks = new ArrayList<Task>();
         while (!c.isAfterLast()) {
@@ -81,6 +79,8 @@ public class TaskTable implements BaseColumns {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
 
+        L.e("Insert " + task.getDue().getValue());
+
         values.put(FIELD_TITLE, task.getTitle());
         values.put(FIELD_DUE_DATE, task.getDue() != null ? task.getDue().getValue() : 0);
         values.put(FIELD_NOTE, task.getNotes() != null ? task.getNotes() : "");
@@ -93,13 +93,13 @@ public class TaskTable implements BaseColumns {
         return db.insert(TABLE_NAME, null, values);
     }
 
-    public static int updateTaskStatus(Context context, long taskLocalId, String status){
+    public static int updateTaskStatus(Context context, long taskLocalId, String status) {
         L.e("Update Status " + taskLocalId + " -- " + status);
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
         values.put(FIELD_COMPLETION_STATUS, status);
 
-        return db.update(TABLE_NAME,values,_ID +"="+taskLocalId,null);
+        return db.update(TABLE_NAME, values, _ID + "=" + taskLocalId, null);
     }
 
 
@@ -129,5 +129,24 @@ public class TaskTable implements BaseColumns {
     public enum PRIORITY {
         LOW, MEDIUM, HIGH
     }
+
+    public static String getStringPriority(int value) {
+        for (int i = 0; i < PRIORITY.values().length; i++){
+            if (value == PRIORITY.values()[i].ordinal()){
+                return PRIORITY.values()[i].toString();
+            }
+        }
+        return "No Priority";
+    }
+
+    public static int getPriorityFromString(String value){
+        for (int i = 0; i < PRIORITY.values().length; i++){
+            if (value.equalsIgnoreCase(PRIORITY.values()[i].toString())){
+                return PRIORITY.values()[i].ordinal();
+            }
+        }
+        return 1;
+    }
+
 
 }

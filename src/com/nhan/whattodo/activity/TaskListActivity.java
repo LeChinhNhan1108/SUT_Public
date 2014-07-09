@@ -4,10 +4,12 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.TaskList;
 import com.nhan.whattodo.R;
@@ -18,6 +20,7 @@ import com.nhan.whattodo.utils.GoogleTaskHelper;
 import com.nhan.whattodo.utils.GoogleTaskManager;
 import com.nhan.whattodo.utils.L;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -35,17 +38,46 @@ public class TaskListActivity extends Activity {
         setupActionbar();
     }
 
+
     @Override
     protected void onResume() {
+        L.e("Task List OnResume ");
         super.onResume();
         int googleServiceAvailable = GoogleTaskHelper.checkGooglePlayServiceAvailability(this);
         service = GoogleTaskHelper.getTaskService(this, googleServiceAvailable);
-
         if (service != null) {
-            if (taskLists == null){
+            boolean hasPermission = GoogleTaskHelper.getPermissionFromSharePref(this);
+            if (!hasPermission)
+                new GetPermissionAsyncTask().execute();
+            else {
+                fetchTaskLists();
+            }
+        }
+    }
+
+    public void fetchTaskLists() {
+        if (service != null) {
+            if (taskLists == null) {
                 DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG, this, getString(R.string.wait_for_sync));
                 new TaskListAsynTask().execute(this);
             }
+        }
+    }
+
+    class GetPermissionAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            L.e("RUN IN BACKGROUND");
+            try {
+                service.tasklists().list().execute();
+            } catch (UserRecoverableAuthIOException e) {
+                startActivityForResult(e.getIntent(), GoogleTaskHelper.GOOGLE_PERMISSION_REQUEST);
+                return false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
         }
     }
 
@@ -78,7 +110,14 @@ public class TaskListActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        GoogleTaskHelper.onCredentialActivityResult(this, requestCode, resultCode, data);
+        L.e("Task List On Activity Result " + requestCode);
+
+        if (requestCode == GoogleTaskHelper.CREDENTIAL_REQUEST)
+            GoogleTaskHelper.onCredentialActivityResult(this, requestCode, resultCode, data);
+        else if (requestCode == GoogleTaskHelper.GOOGLE_PERMISSION_REQUEST && resultCode == RESULT_OK){
+            GoogleTaskHelper.savePermissionToPref(this,true);
+            fetchTaskLists();
+        }
     }
 
     private void setupActionbar() {
