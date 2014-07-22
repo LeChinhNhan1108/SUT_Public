@@ -3,7 +3,6 @@ package com.nhan.whattodo.activity;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
@@ -49,7 +48,7 @@ public class TaskActivity extends Activity {
             L.e("Get intent info");
             String title = intent.getStringExtra(TaskTable.FIELD_TITLE);
             long dueDate = intent.getLongExtra(TaskTable.FIELD_DUE_DATE, 0);
-            final int priority = intent.getIntExtra(TaskTable.FIELD_PRIORITY,1);
+            final int priority = intent.getIntExtra(TaskTable.FIELD_PRIORITY, 1);
             final long group = intent.getLongExtra(TaskTable.FIELD_GROUP, 1);
             String note = intent.getStringExtra(TaskTable.FIELD_NOTE);
 
@@ -90,8 +89,11 @@ public class TaskActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.addTask:
-                getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer,
-                        AddTaskFragment.newInstance(taskGroupId)).addToBackStack("AddTaskFragment").commit();
+                getFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.animator.fragment_slide_in_right, R.animator.fragment_slide_out_left)
+                        .replace(R.id.taskFragmentContainer, AddTaskFragment.newInstance(taskGroupId))
+                        .addToBackStack("AddTaskFragment")
+                        .commit();
                 return true;
             case R.id.removeTask:
                 return false;
@@ -108,7 +110,7 @@ public class TaskActivity extends Activity {
 
     private void setupActionbar() {
         ActionBar actionBar = getActionBar();
-        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.white)));
+//        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.white)));
         actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK</b></font>"));
     }
 

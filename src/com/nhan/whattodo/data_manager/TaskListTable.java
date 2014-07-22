@@ -49,7 +49,7 @@ public class TaskListTable implements BaseColumns {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
         values.put(FIELD_TITLE, taskList.getTitle());
-        values.put(FIELD_REMOTE_ID, taskList.getId());
+        values.put(FIELD_REMOTE_ID, taskList.getId() != null ? taskList.getId() : "");
         return db.insert(TABLE_NAME, null, values);
     }
 
@@ -59,6 +59,24 @@ public class TaskListTable implements BaseColumns {
         if (!c.moveToFirst()) return "";
         String remoteId = c.getString(c.getColumnIndex(FIELD_REMOTE_ID));
         return  remoteId;
+    }
+
+    public static boolean updateRemoteIDByLocalID(Context context, long id, String remoteID){
+        SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
+
+        ContentValues values = new ContentValues();
+        values.put(FIELD_REMOTE_ID, remoteID);
+        int result  = db.update(TABLE_NAME,values,_ID +"="+id,null);
+        return result != 0;
+    }
+
+    public static boolean updateRemoteIDByLocalID(Context context, TaskList taskList, String remoteID){
+        SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
+
+        ContentValues values = new ContentValues();
+        values.put(FIELD_REMOTE_ID, remoteID);
+        int result  = db.update(TABLE_NAME,values,_ID +"="+taskList.get(_ID),null);
+        return result != 0;
     }
 
 }

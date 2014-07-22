@@ -43,10 +43,11 @@ public class TaskTable implements BaseColumns {
 
     public static ArrayList<Task> getAllTaskInTaskList(Context context, long id) {
 
+        L.e("Get All Task in TaskList " + id);
+
         ArrayList<Task> tasks = null;
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         Cursor c = db.query(false, TABLE_NAME, null, FIELD_GROUP + "=" + id, null, null, null, null, null);
-
 
         if (!c.moveToFirst()) return tasks;
         tasks = new ArrayList<Task>();
@@ -78,8 +79,6 @@ public class TaskTable implements BaseColumns {
     public static long insertTask(Context context, Task task) {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
-
-        L.e("Insert " + task.getDue().getValue());
 
         values.put(FIELD_TITLE, task.getTitle());
         values.put(FIELD_DUE_DATE, task.getDue() != null ? task.getDue().getValue() : 0);

@@ -1,6 +1,7 @@
 package com.nhan.whattodo.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 import com.nhan.whattodo.R;
 import com.nhan.whattodo.data_manager.TaskTable;
+import com.nhan.whattodo.utils.L;
 import com.nhan.whattodo.utils.Utils;
 
 import java.util.ArrayList;
@@ -59,6 +61,14 @@ public class TaskAdapter extends ArrayAdapter<Task> {
             tvTaskTitle.setPaintFlags(tvTaskTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
+        int priority = (Integer)data.get(position).get(TaskTable.FIELD_PRIORITY);
+        if (priority == TaskTable.PRIORITY.HIGH.ordinal())
+            tvTaskTitle.setTextColor(getContext().getResources().getColor(android.R.color.holo_red_dark));
+        else if (priority == TaskTable.PRIORITY.MEDIUM.ordinal())
+            tvTaskTitle.setTextColor(getContext().getResources().getColor(android.R.color.holo_orange_light));
+        else if (priority == TaskTable.PRIORITY.LOW.ordinal())
+            tvTaskTitle.setTextColor(Color.BLACK);
+
         tvTaskTitle.setText(data.get(position).getTitle());
         DateTime dateTime = data.get(position).getDue();
 
@@ -71,10 +81,14 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         cbCompleted.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                data.get(position).setStatus(isChecked ? TaskTable.STATUS_COMPLETED : TaskTable.STATUS_NEED_ACTION);
+                L.e("Set check");
+                String status = isChecked ? TaskTable.STATUS_COMPLETED : TaskTable.STATUS_NEED_ACTION;
+                data.get(position).setStatus(status);
+                TaskTable.updateTaskStatus(getContext(), (Long)  data.get(position).get(TaskTable._ID), status);
                 notifyDataSetChanged();
             }
         });
+
         return v;
     }
 }

@@ -26,7 +26,6 @@ import com.nhan.whattodo.utils.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -259,83 +258,92 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                 public void run() {
                     String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), currentGroupId);
                     L.e("Update " + remoteParentId + " " + taskToUpdate.getId());
-                    Task updatedTask = GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), remoteParentId
-                            , taskToUpdate.getId(), taskToUpdate);
-                    if (updatedTask != null) {
-                        final int updateResult = TaskTable.updateTask(getActivity(), taskToUpdate);
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
-                                if (updateResult != 0) {
-                                    L.t(getActivity(), getString(R.string.update_success));
-                                    if (priority == TaskTable.PRIORITY.HIGH.ordinal())
-                                        Utils.setAlarm(getActivity(), dueDate, Integer.parseInt(taskToUpdate.get(TaskTable._ID) + ""), title);
+                    // Update from local
+                    final int updateResult = TaskTable.updateTask(getActivity(), taskToUpdate);
 
-                                    getActivity().onBackPressed();
-                                } else {
-                                    L.t(getActivity(), getString(R.string.update_error));
-                                }
-                            }
-                        });
+                    // If update successfully and have Internet connection
+                    if (updateResult != 0 && Utils.isConnectedToTheInternet(getActivity())) {
+                        final Task updatedTask = GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), remoteParentId
+                                , taskToUpdate.getId(), taskToUpdate);
                     }
+
+                    // Dismiss the dialog and go back to list fragment
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
+                            if (updateResult != 0) {
+                                L.t(getActivity(), getString(R.string.update_success));
+                                if (priority == TaskTable.PRIORITY.HIGH.ordinal())
+                                    Utils.setAlarm(getActivity(), dueDate, Integer.parseInt(taskToUpdate.get(TaskTable._ID) + ""), title);
+
+                                getActivity().onBackPressed();
+                            } else {
+                                L.t(getActivity(), getString(R.string.update_error));
+                            }
+                        }
+                    });
                 }
             }).start();
         } else {
-
+            // Add new Task
             final Task task = new Task();
             task.setTitle(title);
             task.setDue(new DateTime(dueDate));
             task.setNotes(note);
             task.setStatus(TaskTable.STATUS_NEED_ACTION);
+            task.set(TaskTable.FIELD_GROUP, parent_id);
+            task.set(TaskTable.FIELD_PRIORITY, priority);
+            task.set(TaskTable.FIELD_GROUP, parent_id);
+            task.set(TaskTable.FIELD_COLLABORATOR, collaborators);
             new Thread(new Runnable() {
 
                 @Override
                 public void run() {
                     String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), parent_id);
-                    Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
-                    if (remoteTask != null) {
-                        task.set(TaskTable.FIELD_PRIORITY, priority);
-                        task.set(TaskTable.FIELD_GROUP, parent_id);
-                        task.set(TaskTable.FIELD_COLLABORATOR, collaborators);
-                        task.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
-
-                        final long insertedTaskId = TaskTable.insertTask(getActivity(), task);
-                        if (notifyColl) {
-                            for (Collaborator collaborator : AddTaskFragment.this.collaborators) {
-                                if (collaborator.phone != null && !collaborator.phone.isEmpty()) {
-                                    sendSMS(collaborator.phone, task);
-                                } else {
-                                    collaboratorsWithoutPhone += collaborator.name + "\n";
-                                }
-                            }
-                        } else {
-                            L.e("No notification need");
+                    final long insertedTaskId = TaskTable.insertTask(getActivity(), task);
+                    // If inserted Task to local db successfully and have internet connection
+                    if (insertedTaskId != -1 && Utils.isConnectedToTheInternet(getActivity())) {
+                        Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
+                        if (remoteTask != null) {
+                            remoteTask.set(TaskTable._ID, insertedTaskId);
+                            remoteTask.set(TaskTable.FIELD_GROUP, parent_id);
+                            remoteTask.set(TaskTable.FIELD_PRIORITY, priority);
+                            remoteTask.set(TaskTable.FIELD_GROUP, parent_id);
+                            remoteTask.set(TaskTable.FIELD_COLLABORATOR, collaborators);
+                            remoteTask.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
+                            TaskTable.updateTask(getActivity(), remoteTask);
                         }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                L.t(getActivity(), getString(R.string.add_task_success));
-                                DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
-
-                                if (!collaboratorsWithoutPhone.isEmpty())
-                                    L.t(getActivity(), String.format(getString(R.string.contact_no_phone), collaboratorsWithoutPhone));
-
-                                if (priority == TaskTable.PRIORITY.HIGH.ordinal())
-                                    Utils.setAlarm(getActivity(), dueDate, (int) insertedTaskId, title);
-
-                                getActivity().onBackPressed();
-                            }
-                        });
-                    } else {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                L.t(getActivity(), getString(R.string.add_task_error));
-                            }
-                        });
                     }
+                    // Notify if needed;
+                    if (notifyColl) {
+                        for (Collaborator collaborator : AddTaskFragment.this.collaborators) {
+                            if (collaborator.phone != null && !collaborator.phone.isEmpty()) {
+                                sendSMS(collaborator.phone, task);
+                            } else {
+                                collaboratorsWithoutPhone += collaborator.name + "\n";
+                            }
+                        }
+                    } else {
+                        L.e("No notification need");
+                    }
+                    // Dismiss the dialog and go back to the task list fragment
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            L.t(getActivity(), getString(R.string.add_task_success));
+                            DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
+
+                            if (!collaboratorsWithoutPhone.isEmpty())
+                                L.t(getActivity(), String.format(getString(R.string.contact_no_phone), collaboratorsWithoutPhone));
+
+                            if (priority == TaskTable.PRIORITY.HIGH.ordinal())
+                                Utils.setAlarm(getActivity(), dueDate, (int) insertedTaskId, title);
+
+                            getActivity().onBackPressed();
+                        }
+                    });
                 }
             }).start();
         }
@@ -381,7 +389,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             cursor = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null
                     , ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{contactID}, null);
 
-            String phone = "";
+            String phone = "null";
             if (cursor.moveToFirst()) {
                 int column4 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                 phone = cursor.getString(column4);
@@ -472,6 +480,8 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         menu.findItem(R.id.addTask).setVisible(false);
         menu.findItem(R.id.updateTask).setVisible(false);
         menu.findItem(R.id.removeTask).setVisible(false);
+        menu.findItem(R.id.sortByDueDate).setVisible(false);
+        menu.findItem(R.id.sortByPriority).setVisible(false);
     }
 
     public static String[] getPriorityString(Class<? extends Enum<?>> e) {
@@ -511,17 +521,22 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     public void sendSMS(String phone, Task task) {
         SmsManager smsManager = SmsManager.getDefault();
 
-        L.e("Date time "+task.getDue().getValue());
+        L.e("Date time " + task.getDue().getValue());
 
         String mess = getString(R.string.SMS_HEADER);
         mess += TITLE_HEADER + DELIMETER1 + task.getTitle() + DELIMETER_NL;
         mess += DUEDATE_HEADER + DELIMETER1 + Utils.convertDateToString(task.getDue().getValue()) + DELIMETER_NL;
         mess += DUETIME_HEADER + DELIMETER1 + Utils.convertTimeToString(task.getDue().getValue()) + DELIMETER_NL;
-        mess += PRIORITY_HEADER + DELIMETER1 + TaskTable.getStringPriority((Integer)task.get(TaskTable.FIELD_PRIORITY)) + DELIMETER_NL;
+        mess += PRIORITY_HEADER + DELIMETER1 + TaskTable.getStringPriority((Integer) task.get(TaskTable.FIELD_PRIORITY)) + DELIMETER_NL;
         mess += GROUP_HEADER + DELIMETER1 + task.get(TaskTable.FIELD_GROUP) + DELIMETER_NL;
         mess += NOTE_HEADER + DELIMETER1 + task.getNotes();
 
-        smsManager.sendTextMessage(phone, null, mess, null, null);
+        try {
+            Integer.parseInt(phone);
+            smsManager.sendTextMessage(phone, null, mess, null, null);
+        }catch (NumberFormatException e){
+
+        }
     }
 
     class GetAllTaskListFromDBAsyncTask extends AsyncTask<Activity, Void, ArrayList<TaskList>> {

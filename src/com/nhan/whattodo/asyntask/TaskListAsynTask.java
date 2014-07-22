@@ -10,6 +10,8 @@ import com.nhan.whattodo.activity.TaskListActivity;
 import com.nhan.whattodo.data_manager.TaskListTable;
 import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.utils.GoogleTaskManager;
+import com.nhan.whattodo.utils.L;
+import com.nhan.whattodo.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -20,23 +22,58 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
 
     TaskListActivity activity;
 
+    private String SCHOOL_TASK_GROUP = "School";
+    private String WORK_TASK_GROUP = "Work";
+    private String ENTERTAINMENT_TASK_GROUP = "Entertainment";
+    private String PERSONAL_TASK_GROUP = "Personal";
+
     @Override
     protected ArrayList<TaskList> doInBackground(Activity... params) {
         activity = (TaskListActivity) params[0];
         ArrayList<TaskList> taskLists = TaskListTable.getAllTaskList(activity);
+        // Database is empty, create 4 predefined Task groups
+
+        L.e("TaskList from DB " + taskLists);
+
         if (taskLists == null) {
-            taskLists = syncTaskListFromServer();
-            saveDataFromServerToDB(taskLists);
-            // If only default list exist, create 4 new task groups
-            if (taskLists.size() == 1){
-                taskLists.addAll(createNewTaskList());
+            taskLists = new ArrayList<TaskList>();
+            TaskList schoolTask = createNewTaskList(SCHOOL_TASK_GROUP);
+            TaskList workTask = createNewTaskList(WORK_TASK_GROUP);
+            TaskList entertainmentTask = createNewTaskList(ENTERTAINMENT_TASK_GROUP);
+            TaskList personalTask = createNewTaskList(PERSONAL_TASK_GROUP);
+
+            taskLists.add(schoolTask);
+            taskLists.add(workTask);
+            taskLists.add(entertainmentTask);
+            taskLists.add(personalTask);
+
+            if (Utils.isConnectedToTheInternet(activity)){
+                // Sync task groups from server and save to database
+                ArrayList<TaskList> serverTaskList =  syncTaskListFromServer();
+                saveDataFromServerToDB(serverTaskList);
+
+                // Sync all local task to server
+                TaskList taskListFromServer = null;
+
+                taskListFromServer = GoogleTaskManager.insertTaskList(activity.getService(),SCHOOL_TASK_GROUP);
+                TaskListTable.updateRemoteIDByLocalID(activity,schoolTask,taskListFromServer.getId());
+
+                taskListFromServer = GoogleTaskManager.insertTaskList(activity.getService(),WORK_TASK_GROUP);
+                TaskListTable.updateRemoteIDByLocalID(activity,workTask,taskListFromServer.getId());
+
+                taskListFromServer = GoogleTaskManager.insertTaskList(activity.getService(),ENTERTAINMENT_TASK_GROUP);
+                TaskListTable.updateRemoteIDByLocalID(activity,entertainmentTask,taskListFromServer.getId());
+
+                taskListFromServer = GoogleTaskManager.insertTaskList(activity.getService(),PERSONAL_TASK_GROUP);
+                TaskListTable.updateRemoteIDByLocalID(activity,personalTask,taskListFromServer.getId());
+
+                taskLists.addAll(serverTaskList);
             }
         }
         return taskLists;
     }
 
-
-    public void saveDataFromServerToDB(ArrayList<TaskList> taskLists){
+    public void saveDataFromServerToDB(ArrayList<TaskList> taskLists) {
         for (TaskList tl : taskLists) {
             long localID = TaskListTable.insertTaskList(activity, tl);
             tl.set(TaskListTable._ID, localID);
@@ -55,35 +92,16 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
         return (ArrayList<TaskList>) taskLists.getItems();
     }
 
-    private ArrayList<TaskList> createNewTaskList() {
-        ArrayList<TaskList> taskLists = new ArrayList<TaskList>();
+    private TaskList createNewTaskList(String title) {
         TaskList newTaskList;
 
-        newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "School");
-        long localID = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, localID);
-        taskLists.add(newTaskList);
+        newTaskList = new TaskList();
+        newTaskList.setTitle(title);
+        long id = TaskListTable.insertTaskList(activity, newTaskList);
+        newTaskList.set(TaskListTable._ID, id);
 
-
-        newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Work");
-        localID = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, localID);
-        taskLists.add(newTaskList);
-
-        newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Entertainment");
-        localID = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, localID);
-        taskLists.add(newTaskList);
-
-
-        newTaskList = GoogleTaskManager.insertTaskList(activity.getService(), "Personal");
-        localID = TaskListTable.insertTaskList(activity, newTaskList);
-        newTaskList.set(TaskListTable._ID, localID);
-        taskLists.add(newTaskList);
-
-        return taskLists;
+        return newTaskList;
     }
-
 
     @Override
     protected void onPostExecute(ArrayList<TaskList> taskLists) {

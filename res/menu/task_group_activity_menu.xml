@@ -5,4 +5,8 @@
           android:title="ClearDB"
           android:showAsAction="always"
             />
+    <item android:id="@+id/syncAllDB"
+          android:title="Sync"
+          android:showAsAction="always"
+            />
 </menu>

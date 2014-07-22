@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import com.google.api.client.util.DateTime;
 import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.receiver.AlarmReceiver;
@@ -88,6 +89,12 @@ public class Utils {
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent operation = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager.cancel(operation);
+    }
+
+    // Connectivity Detector
+    public static boolean isConnectedToTheInternet(Context context){
+        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return manager.getActiveNetworkInfo() != null ? true : false;
     }
 
 

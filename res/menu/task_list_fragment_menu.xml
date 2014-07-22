@@ -3,16 +3,29 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/addTask"
           android:title="Add"
+          android:icon="@drawable/ic_action_new"
           android:showAsAction="always"
             />
 
     <item android:id="@+id/updateTask"
           android:title="Update Status"
+          android:icon="@drawable/ic_action_cloud"
           android:showAsAction="always"
             />
 
     <item android:id="@+id/removeTask"
           android:title="Remove"
+          android:icon="@drawable/ic_action_remove"
           android:showAsAction="always"
+            />
+
+    <item android:id="@+id/sortByPriority"
+          android:title="Sort By Priority"
+          android:showAsAction="never"
+            />
+
+    <item android:id="@+id/sortByDueDate"
+          android:title="Sort By Due Date"
+          android:showAsAction="never"
             />
 </menu>

@@ -47,7 +47,6 @@ public class GoogleTaskManager {
             } catch (IOException e) {
                 L.e("Default Task Cannot Be Deleted");
                 com.google.api.services.tasks.model.Tasks tasks = getAllTaskInTaskList(service, temp.getItems().get(i).getId());
-                L.e(tasks.getItems().size() + " items");
                 for (int j = 0; j < tasks.getItems().size(); j++) {
                     try {
                         service.tasks().delete(temp.getItems().get(i).getId(), tasks.getItems().get(j).getId()).execute();

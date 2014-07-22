@@ -13,12 +13,10 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.TaskList;
 import com.nhan.whattodo.R;
+import com.nhan.whattodo.asyntask.SyncAllDBAsyncTask;
 import com.nhan.whattodo.asyntask.TaskListAsynTask;
 import com.nhan.whattodo.fragment.TGListFragment;
-import com.nhan.whattodo.utils.DialogUtils;
-import com.nhan.whattodo.utils.GoogleTaskHelper;
-import com.nhan.whattodo.utils.GoogleTaskManager;
-import com.nhan.whattodo.utils.L;
+import com.nhan.whattodo.utils.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,24 +36,33 @@ public class TaskListActivity extends Activity {
         setupActionbar();
     }
 
+    boolean hasPermission;
 
     @Override
     protected void onResume() {
         L.e("Task List OnResume ");
         super.onResume();
-        int googleServiceAvailable = GoogleTaskHelper.checkGooglePlayServiceAvailability(this);
-        service = GoogleTaskHelper.getTaskService(this, googleServiceAvailable);
-        if (service != null) {
-            boolean hasPermission = GoogleTaskHelper.getPermissionFromSharePref(this);
+        hasPermission = GoogleTaskHelper.getPermissionFromSharePref(this);
+        if (!Utils.isConnectedToTheInternet(this)) {
             if (!hasPermission)
-                new GetPermissionAsyncTask().execute();
-            else {
-                fetchTaskLists();
+                L.t(this, "No internet connection. Please turn on to Synchronize Tasks from Server");
+            else
+                new TaskListAsynTask().execute(this);
+        } else {
+            int googleServiceAvailable = GoogleTaskHelper.checkGooglePlayServiceAvailability(this);
+            service = GoogleTaskHelper.getTaskService(this, googleServiceAvailable);
+            if (service != null) {
+                L.e("Has permission " + hasPermission);
+                if (!hasPermission)
+                    new GetPermissionAsyncTask().execute();
+                else
+                    fetchTaskLists();
             }
         }
     }
 
     public void fetchTaskLists() {
+        L.e("Fetch task List");
         if (service != null) {
             if (taskLists == null) {
                 DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG, this, getString(R.string.wait_for_sync));
@@ -72,12 +79,22 @@ public class TaskListActivity extends Activity {
                 service.tasklists().list().execute();
             } catch (UserRecoverableAuthIOException e) {
                 startActivityForResult(e.getIntent(), GoogleTaskHelper.GOOGLE_PERMISSION_REQUEST);
+                L.e("Start Activity For Google Permission");
                 return false;
             } catch (IOException e) {
-                e.printStackTrace();
+                L.e("Get Pemission Exception " + e.getMessage());
                 return false;
             }
             return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (aBoolean && !hasPermission) {
+                GoogleTaskHelper.savePermissionToPref(TaskListActivity.this, true);
+                fetchTaskLists();
+            }
         }
     }
 
@@ -97,13 +114,20 @@ public class TaskListActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                L.d(" Clear ALL TL");
-                GoogleTaskManager.clearAllTaskList(getService());
-            }
-        }).start();
+        switch (item.getItemId()){
+            case R.id.clearDB:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        L.d(" Clear ALL TL");
+                        GoogleTaskManager.clearAllTaskList(getService());
+                    }
+                }).start();
+                break;
+            case R.id.syncAllDB:
+                new SyncAllDBAsyncTask().execute(this);
+                break;
+        }
         return true;
     }
 
@@ -114,20 +138,21 @@ public class TaskListActivity extends Activity {
 
         if (requestCode == GoogleTaskHelper.CREDENTIAL_REQUEST)
             GoogleTaskHelper.onCredentialActivityResult(this, requestCode, resultCode, data);
-        else if (requestCode == GoogleTaskHelper.GOOGLE_PERMISSION_REQUEST && resultCode == RESULT_OK){
-            GoogleTaskHelper.savePermissionToPref(this,true);
+        else if (requestCode == GoogleTaskHelper.GOOGLE_PERMISSION_REQUEST && resultCode == RESULT_OK) {
+            GoogleTaskHelper.savePermissionToPref(this, true);
             fetchTaskLists();
         }
     }
 
     private void setupActionbar() {
         ActionBar actionBar = getActionBar();
-        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.white)));
+//        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.white)));
         actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK GROUP</b></font>"));
 
     }
 
     public void showTGFragment(ArrayList<TaskList> taskLists) {
+        L.t(this,"Show TG Fragment");
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
         if (taskLists == null) return;
         this.taskLists = taskLists;
