@@ -3,4 +3,5 @@
     <dimen name="padding_15dp">15dp</dimen>
     <integer name="anim_500">500</integer>
     <integer name="card_flip_time_half">250</integer>
+    <dimen name="textSize">18sp</dimen>
 </resources>

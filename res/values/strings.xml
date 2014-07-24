@@ -13,5 +13,7 @@
     <string name="update_success">Task updated successfully</string>
     <string name="add_task_success">Task added successfully</string>
     <string name="add_task_error">Add task error</string>
+    <string name="empty_string">No items</string>
+    <string name="sort_task">Tasks are sorted by %s</string>
 
 </resources>

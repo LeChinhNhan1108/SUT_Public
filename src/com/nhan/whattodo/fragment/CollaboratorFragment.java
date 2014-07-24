@@ -39,9 +39,9 @@ public class CollaboratorFragment extends DialogFragment {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View convertView = (View) inflater.inflate(R.layout.collaborator_fragment, null);
+        View convertView = inflater.inflate(R.layout.collaborator_fragment, null);
         alertDialog.setView(convertView);
-        alertDialog.setTitle("List");
+        alertDialog.setTitle("Collaborator List");
         ListView lv = (ListView) convertView.findViewById(R.id.collList);
 
         CollAdapter adapter = new CollAdapter(getActivity(),R.layout.collaborator_fragment_item,collaborators);

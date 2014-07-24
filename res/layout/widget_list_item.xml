@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:paddingLeft="@dimen/padding_15dp"
+              android:paddingTop="5dp"
+              android:paddingBottom="5dp"
+              android:background="@android:color/white"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:id="@+id/tvTaskTitle"
+            android:layout_width="wrap_content"
+            android:maxEms="10"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:text="@string/task_title_dummy"
+            android:ellipsize="end"
+            android:singleLine="true"
+            />
+
+    <TextView
+            android:id="@+id/tvTaskDue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+            android:text="@string/task_due_dummy"
+            android:textColor="@color/cyan"
+            />
+
+</LinearLayout>

@@ -78,7 +78,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         // Set up Spinner priority
         spinnerPriority = (Spinner) view.findViewById(R.id.spnPriority);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity()
-                , android.R.layout.simple_spinner_dropdown_item, getPriorityString(TaskTable.PRIORITY.class));
+                , R.layout.simple_dropdown_item, getPriorityString(TaskTable.PRIORITY.class));
         spinnerPriority.setAdapter(adapter);
 
         spinnerPriority.setSelection(TaskTable.PRIORITY.MEDIUM.ordinal());
@@ -217,12 +217,12 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                         }
                     });
 
-
                     if (collaborators != null && !collaborators.isEmpty())
                         dialogFragment.show(getFragmentManager(), "Confirm Dialog");
                     else
                         saveTask();
                 }
+                Utils.updateAppWidget(getActivity());
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -307,13 +307,9 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                     if (insertedTaskId != -1 && Utils.isConnectedToTheInternet(getActivity())) {
                         Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), remoteParentId, task);
                         if (remoteTask != null) {
-                            remoteTask.set(TaskTable._ID, insertedTaskId);
-                            remoteTask.set(TaskTable.FIELD_GROUP, parent_id);
-                            remoteTask.set(TaskTable.FIELD_PRIORITY, priority);
-                            remoteTask.set(TaskTable.FIELD_GROUP, parent_id);
-                            remoteTask.set(TaskTable.FIELD_COLLABORATOR, collaborators);
-                            remoteTask.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
-                            TaskTable.updateTask(getActivity(), remoteTask);
+                            task.set(TaskTable._ID, insertedTaskId);
+                            task.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
+                            TaskTable.updateTask(getActivity(), task);
                         }
                     }
                     // Notify if needed;
@@ -408,54 +404,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         }
         return temp;
     }
-
-//    public void readContacts() {
-//        ContentResolver cr = getActivity().getContentResolver();
-//        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
-//                null, null, null, null);
-//
-//        if (cur.getCount() > 0) {
-//            while (cur.moveToNext()) {
-//                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-//                String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-//
-//                if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-//                    L.d("name : " + name + ", ID : " + id);
-//
-//                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-//                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-//                            new String[]{id}, null);
-//                    while (pCur.moveToNext()) {
-//                        String phone = pCur.getString(
-//                                pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                        L.d("phone" + phone);
-//                    }
-//                    pCur.close();
-//
-//                    // get email and type
-//
-//                    Cursor emailCur = cr.query(
-//                            ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-//                            null,
-//                            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-//                            new String[]{id}, null);
-//                    while (emailCur.moveToNext()) {
-//                        // This would allow you get several email addresses
-//                        // if the email addresses were stored in an array
-//                        String email = emailCur.getString(
-//                                emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-//                        String emailType = emailCur.getString(
-//                                emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
-//
-//                        L.d("Email " + email + " Email Type : " + emailType);
-//                    }
-//                    emailCur.close();
-//
-//
-//                }
-//            }
-//        }
-//    }
 
     public class Collaborator {
 

@@ -82,6 +82,7 @@ public class GoogleTaskManager {
 
     public static Task updateTask(Tasks service, String taskListId, String taskId, Task task) {
         try {
+            L.e(taskId + " -- " + taskListId + " -- " + task.toString());
             return service.tasks().update(taskListId, taskId, task).execute();
         } catch (IOException e) {
             L.e(e.getMessage());

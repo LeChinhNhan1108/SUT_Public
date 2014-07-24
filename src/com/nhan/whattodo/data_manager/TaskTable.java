@@ -41,6 +41,40 @@ public class TaskTable implements BaseColumns {
             FIELD_REMOTE_ID + " text" +
             ");";
 
+
+
+    public static ArrayList<Task> getAllTask(Context context){
+        ArrayList<Task> tasks = null;
+        SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
+        Cursor c = db.query(false, TABLE_NAME, null, null, null, null, null, TaskTable.FIELD_DUE_DATE, null);
+
+        if (!c.moveToFirst()) return tasks;
+        tasks = new ArrayList<Task>();
+        while (!c.isAfterLast()) {
+
+            Task task = new Task();
+
+            task.set(TaskTable._ID, c.getLong(c.getColumnIndex(TaskTable._ID)));
+            task.setTitle(c.getString(c.getColumnIndex(FIELD_TITLE)));
+
+            long dueDate = c.getLong(c.getColumnIndex(FIELD_DUE_DATE));
+            if (dueDate != 0) task.setDue(new DateTime(dueDate));
+
+            task.setNotes(c.getString(c.getColumnIndex(FIELD_NOTE)));
+            task.setStatus(c.getString(c.getColumnIndex(FIELD_COMPLETION_STATUS)));
+            task.setId(c.getString(c.getColumnIndex(FIELD_REMOTE_ID)));
+
+            task.set(FIELD_PRIORITY, c.getInt(c.getColumnIndex(FIELD_PRIORITY)));
+            task.set(FIELD_GROUP, c.getLong(c.getColumnIndex(FIELD_GROUP)));
+            task.set(FIELD_COLLABORATOR, c.getString(c.getColumnIndex(FIELD_COLLABORATOR)));
+
+            tasks.add(task);
+
+            c.moveToNext();
+        }
+        return tasks;
+    }
+
     public static ArrayList<Task> getAllTaskInTaskList(Context context, long id) {
 
         L.e("Get All Task in TaskList " + id);
@@ -106,14 +140,18 @@ public class TaskTable implements BaseColumns {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
 
+
         values.put(FIELD_TITLE, task.getTitle());
-        values.put(FIELD_DUE_DATE, task.getDue() != null ? task.getDue().getValue() : 0);
+        values.put(FIELD_DUE_DATE, task.get(TaskTable.FIELD_DUE_DATE) != null ? (Long)task.get(TaskTable.FIELD_DUE_DATE) : task.getDue().getValue());
         values.put(FIELD_NOTE, task.getNotes() != null ? task.getNotes() : "");
         values.put(FIELD_PRIORITY, (Integer) task.get(FIELD_PRIORITY));
         values.put(FIELD_COLLABORATOR, (String) task.get(FIELD_COLLABORATOR));
         values.put(FIELD_GROUP, (Long) task.get(FIELD_GROUP));
         values.put(FIELD_COMPLETION_STATUS, task.getStatus());
-        values.put(FIELD_REMOTE_ID, task.getId());
+        values.put(FIELD_REMOTE_ID, task.getId() != null && !task.getId().isEmpty() ? task.getId() : (task.get(TaskTable.FIELD_REMOTE_ID)).toString());
+
+        L.e("Value " + values);
+
 
         int result = db.update(TABLE_NAME, values, _ID + "=" + task.get(TaskTable._ID), null);
         L.e("Update task: " + result + " record is updated");

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:orientation="vertical"
+             android:padding="5dp"
              android:layout_width="fill_parent"
              android:layout_height="fill_parent"
         >
@@ -23,17 +24,15 @@
                 <EditText
                         android:id="@+id/edtTitle"
                         android:hint="What to do ..."
-                        android:layout_weight="4"
+                        android:layout_weight="8"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         />
-
-
                 <Spinner
                         android:id="@+id/spnPriority"
-                        android:layout_weight="1"
+                        android:layout_weight="3"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         />
 
             </TableRow>
@@ -45,40 +44,46 @@
                 <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_action_alarms"
+                        android:src="@drawable/img_date"
                         android:layout_gravity="center"
                         />
 
                 <Button
                         android:id="@+id/btnDue"
-                        android:paddingLeft="10dp"
-                        android:textSize="20sp"
+                        android:paddingLeft="30dp"
+                        android:paddingRight="40dp"
+                        android:textSize="@dimen/textSize"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
+                        android:layout_width="match_parent"
                         android:text="Due Sat, 10-05-2013"
-                        android:textColor="@android:color/holo_blue_light"
+                        android:background="@drawable/bg_btn"
+                        android:textColor="@android:color/white"
                         />
             </TableRow>
 
 
             <TableRow
+                    android:layout_marginTop="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     >
                 <ImageView android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:src="@drawable/ic_action_alarms"
+                           android:src="@drawable/img_alert"
                            android:layout_gravity="center"
                         />
 
                 <Button
+
                         android:id="@+id/btnRemind"
-                        android:paddingLeft="10dp"
-                        android:textSize="20sp"
+                        android:paddingLeft="30dp"
+                        android:textSize="@dimen/textSize"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
                         android:text="Remind me at"
-                        android:textColor="@android:color/holo_blue_light"
+                        android:background="@drawable/bg_btn"
+                        android:textColor="@android:color/white"
 
                         />
 
@@ -88,8 +93,7 @@
             <Spinner
                     android:layout_width="match_parent"
                     android:id="@+id/spnTaskGroup"
-                    android:paddingLeft="10dp"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/textSize"
                     android:textStyle="bold"
                     android:text="Choose Task Group"
                     android:textColor="@android:color/holo_blue_light"
@@ -101,31 +105,33 @@
                     >
                 <ImageView android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:src="@drawable/ic_action_add_person"
+                           android:src="@drawable/share_add_icon"
                            android:layout_gravity="center"
                         />
 
                 <Button
                         android:id="@+id/btnChooseColl"
-                        android:paddingLeft="10dp"
-                        android:textSize="20sp"
+                        android:paddingLeft="30dp"
+                        android:textSize="@dimen/textSize"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
                         android:text="Choose Collaborator"
-                        android:textColor="@android:color/holo_blue_light"
+                        android:background="@drawable/bg_btn"
+                        android:textColor="@android:color/white"
                         />
+
                 <View android:layout_weight="1"/>
                 <ImageButton
                         android:id="@+id/btnShowColl"
-                        android:layout_marginRight="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_action_add_person"
+                        android:src="@drawable/quick_set_share_0"
                         android:background="@android:color/transparent"
                         android:layout_gravity="center"
                         />
-            </TableRow>
 
+
+            </TableRow>
 
             <TableRow
                     android:id="@+id/trCompletion"
@@ -141,11 +147,11 @@
                         android:checked="false"/>
 
                 <TextView
-                        android:paddingLeft="10dp"
+                        android:paddingLeft="30dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Completed"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/textSize"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/holo_blue_light"

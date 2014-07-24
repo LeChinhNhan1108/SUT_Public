@@ -2,12 +2,16 @@ package com.nhan.whattodo.utils;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import com.google.api.client.util.DateTime;
+import com.nhan.whattodo.R;
 import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.receiver.AlarmReceiver;
+import com.nhan.whattodo.receiver.WidgetProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -94,7 +98,12 @@ public class Utils {
     // Connectivity Detector
     public static boolean isConnectedToTheInternet(Context context){
         ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return manager.getActiveNetworkInfo() != null ? true : false;
+        return manager.getActiveNetworkInfo() != null;
+    }
+
+    public static void updateAppWidget(Context context){
+        int ids[] = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, WidgetProvider.class));
+        AppWidgetManager.getInstance(context).notifyAppWidgetViewDataChanged(ids, R.id.listViewWidget);
     }
 
 
