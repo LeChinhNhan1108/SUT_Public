@@ -3,7 +3,6 @@ package com.nhan.whattodo.activity;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -40,7 +39,6 @@ public class TaskListActivity extends Activity {
 
     @Override
     protected void onResume() {
-        L.e("Task List OnResume ");
         super.onResume();
         hasPermission = GoogleTaskHelper.getPermissionFromSharePref(this);
         if (!Utils.isConnectedToTheInternet(this)) {
@@ -74,7 +72,6 @@ public class TaskListActivity extends Activity {
     class GetPermissionAsyncTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
-            L.e("RUN IN BACKGROUND");
             try {
                 service.tasklists().list().execute();
             } catch (UserRecoverableAuthIOException e) {
@@ -114,12 +111,11 @@ public class TaskListActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.clearDB:
+        switch (item.getItemId()) {
+            case R.id.deleteAll:
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        L.d(" Clear ALL TL");
                         GoogleTaskManager.clearAllTaskList(getService());
                     }
                 }).start();
@@ -134,8 +130,6 @@ public class TaskListActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        L.e("Task List On Activity Result " + requestCode);
-
         if (requestCode == GoogleTaskHelper.CREDENTIAL_REQUEST)
             GoogleTaskHelper.onCredentialActivityResult(this, requestCode, resultCode, data);
         else if (requestCode == GoogleTaskHelper.GOOGLE_PERMISSION_REQUEST && resultCode == RESULT_OK) {
@@ -146,13 +140,11 @@ public class TaskListActivity extends Activity {
 
     private void setupActionbar() {
         ActionBar actionBar = getActionBar();
-//        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.white)));
-        actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK GROUP</b></font>"));
-
+        if (actionBar != null)
+            actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK GROUP</b></font>"));
     }
 
     public void showTGFragment(ArrayList<TaskList> taskLists) {
-        L.t(this,"Show TG Fragment");
         DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
         if (taskLists == null) return;
         this.taskLists = taskLists;

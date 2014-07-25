@@ -20,10 +20,7 @@ import java.util.List;
  */
 public class CollaboratorFragment extends DialogFragment {
 
-
     ArrayList<AddTaskFragment.Collaborator> collaborators;
-    private ICollBtnRemove iCollBtnRemove;
-
     public CollaboratorFragment() {
     }
 
@@ -85,18 +82,6 @@ public class CollaboratorFragment extends DialogFragment {
 
             return v;
         }
-    }
-
-    public ICollBtnRemove getiCollBtnRemove() {
-        return iCollBtnRemove;
-    }
-
-    public void setiCollBtnRemove(ICollBtnRemove iCollBtnRemove) {
-        this.iCollBtnRemove = iCollBtnRemove;
-    }
-
-    public interface ICollBtnRemove{
-        public void btnCollRemove();
     }
 }
 

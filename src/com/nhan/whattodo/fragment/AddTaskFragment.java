@@ -41,19 +41,16 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     long dueDate, taskGroupId;
     ArrayList<Collaborator> collaborators;
 
-
     // Use when updating task
     Task taskToUpdate;
 
     public static AddTaskFragment newInstance(long taskGroupId) {
-
         AddTaskFragment addTaskFragment = new AddTaskFragment();
         addTaskFragment.taskGroupId = taskGroupId;
         return addTaskFragment;
     }
 
     public static AddTaskFragment newInstance(Task taskToUpdate) {
-
         AddTaskFragment addTaskFragment = new AddTaskFragment();
         addTaskFragment.taskToUpdate = taskToUpdate;
         return addTaskFragment;
@@ -99,7 +96,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         // Since index = 0, id = 1
         taskListSpinner.setSelection((int) taskGroupId - 1);
 
-
         edtTitle = (EditText) view.findViewById(R.id.edtTitle);
         edtNote = (EditText) view.findViewById(R.id.edtNote);
 
@@ -115,7 +111,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
 
 
         calendar = Calendar.getInstance();
-//        calendar.setTimeZone(TimeZone.getDefault());
         dueDate = calendar.getTimeInMillis();
         collaborators = new ArrayList<Collaborator>();
 
@@ -129,8 +124,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             if (taskToUpdate.getDue() != null)
                 dueDate = taskToUpdate.getDue().getValue();
             collaborators.addAll(stringToCollaborator((String) taskToUpdate.get(TaskTable.FIELD_COLLABORATOR)));
-
-//            L.e("Date " + dueDate);
         }
 
         btnDue.setText("Due " + Utils.convertDateToString(dueDate));
@@ -195,11 +188,10 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
             case R.id.saveTask:
                 // No notify when update Task
                 if (taskToUpdate != null) {
-                    L.e("Update Task");
                     saveTask();
                 } else {
                     notifyColl = false;
-                    DialogFragment dialogFragment = DialogFragment.newInstance("Confirm Dialog", "Notify all collboratos",
+                    DialogFragment dialogFragment = DialogFragment.newInstance("Confirm Dialog", "Notify all collaborators",
                             new DialogFragment.IPositiveDialogClick() {
                                 @Override
                                 public void onClick() {
@@ -243,7 +235,6 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
 
         DialogUtils.showDialog(DialogUtils.DialogType.PROGRESS_DIALOG, getActivity(), getString(R.string.wait_for_sync));
         if (taskToUpdate != null) {
-            L.e("Before update " + taskToUpdate);
             final long currentGroupId = (Long) taskToUpdate.get(TaskTable.FIELD_GROUP);
 
             taskToUpdate.setTitle(title);
@@ -257,14 +248,13 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                 @Override
                 public void run() {
                     String remoteParentId = TaskListTable.getTaskListRemoteIDByLocalID(getActivity(), currentGroupId);
-                    L.e("Update " + remoteParentId + " " + taskToUpdate.getId());
 
                     // Update from local
                     final int updateResult = TaskTable.updateTask(getActivity(), taskToUpdate);
 
                     // If update successfully and have Internet connection
                     if (updateResult != 0 && Utils.isConnectedToTheInternet(getActivity())) {
-                        final Task updatedTask = GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), remoteParentId
+                        GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), remoteParentId
                                 , taskToUpdate.getId(), taskToUpdate);
                     }
 
@@ -322,7 +312,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
                             }
                         }
                     } else {
-                        L.e("No notification need");
+                        L.e("No notification needed");
                     }
                     // Dismiss the dialog and go back to the task list fragment
                     getActivity().runOnUiThread(new Runnable() {
@@ -469,8 +459,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
     public void sendSMS(String phone, Task task) {
         SmsManager smsManager = SmsManager.getDefault();
 
-        L.e("Date time " + task.getDue().getValue());
-
+        phone = phone.replaceAll("-","");
         String mess = getString(R.string.SMS_HEADER);
         mess += TITLE_HEADER + DELIMETER1 + task.getTitle() + DELIMETER_NL;
         mess += DUEDATE_HEADER + DELIMETER1 + Utils.convertDateToString(task.getDue().getValue()) + DELIMETER_NL;
@@ -479,16 +468,17 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         mess += GROUP_HEADER + DELIMETER1 + task.get(TaskTable.FIELD_GROUP) + DELIMETER_NL;
         mess += NOTE_HEADER + DELIMETER1 + task.getNotes();
 
+
         try {
             Integer.parseInt(phone);
             smsManager.sendTextMessage(phone, null, mess, null, null);
-        }catch (NumberFormatException e){
-
+            L.e("Send Message to " + phone);
+        } catch (NumberFormatException e) {
+            L.e("Send Message Error: "+e.getMessage());
         }
     }
 
     class GetAllTaskListFromDBAsyncTask extends AsyncTask<Activity, Void, ArrayList<TaskList>> {
-
         @Override
         protected ArrayList<TaskList> doInBackground(Activity... params) {
             TaskActivity activity = (TaskActivity) params[0];

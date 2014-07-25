@@ -15,5 +15,6 @@
     <string name="add_task_error">Add task error</string>
     <string name="empty_string">No items</string>
     <string name="sort_task">Tasks are sorted by %s</string>
+    <string name="syncAll">Sync All</string>
 
 </resources>

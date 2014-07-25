@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/clearDB"
-          android:title="ClearDB"
+
+    <item android:id="@+id/deleteAll"
+          android:title="Delete All"
+          android:visible="true"
           android:showAsAction="always"
             />
+
     <item android:id="@+id/syncAllDB"
-          android:title="Sync"
+          android:title="@string/syncAll"
           android:showAsAction="always"
             />
 </menu>

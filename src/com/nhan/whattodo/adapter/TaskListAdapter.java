@@ -29,20 +29,12 @@ public class TaskListAdapter extends ArrayAdapter<TaskList> {
 
     @Override
     public int getCount() {
-        if (data == null) {
-            return 0;
-        } else {
-            return data.size();
-        }
+        return data == null ? 0 : data.size();
     }
 
     @Override
     public long getItemId(int position) {
-        if (data != null) {
-            return (Long) data.get(position).get(TaskListTable._ID);
-        } else {
-            return 0;
-        }
+        return data != null ? (Long) data.get(position).get(TaskListTable._ID) : 0;
     }
 
     @Override

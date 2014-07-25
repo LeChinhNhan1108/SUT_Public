@@ -28,7 +28,9 @@ public class TaskListTable implements BaseColumns {
             ");";
 
     public static ArrayList<TaskList> getAllTaskList(Context context) {
+
         L.e("Get all task list from DB");
+
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         Cursor c = db.query(false, TABLE_NAME, null, null, null, null, null, _ID, null);
         ArrayList<TaskList> items = new ArrayList<TaskList>();
@@ -45,7 +47,6 @@ public class TaskListTable implements BaseColumns {
     }
 
     public static long insertTaskList(Context context, TaskList taskList) {
-        L.e("Insert to db");
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
         values.put(FIELD_TITLE, taskList.getTitle());
@@ -57,17 +58,7 @@ public class TaskListTable implements BaseColumns {
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         Cursor c = db.query(false,TABLE_NAME,null,_ID + "=" +id,null,null,null,null,null);
         if (!c.moveToFirst()) return "";
-        String remoteId = c.getString(c.getColumnIndex(FIELD_REMOTE_ID));
-        return  remoteId;
-    }
-
-    public static boolean updateRemoteIDByLocalID(Context context, long id, String remoteID){
-        SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
-
-        ContentValues values = new ContentValues();
-        values.put(FIELD_REMOTE_ID, remoteID);
-        int result  = db.update(TABLE_NAME,values,_ID +"="+id,null);
-        return result != 0;
+        return c.getString(c.getColumnIndex(FIELD_REMOTE_ID));
     }
 
     public static boolean updateRemoteIDByLocalID(Context context, TaskList taskList, String remoteID){

@@ -30,11 +30,10 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
     @Override
     protected ArrayList<TaskList> doInBackground(Activity... params) {
         activity = (TaskListActivity) params[0];
+
         ArrayList<TaskList> taskLists = TaskListTable.getAllTaskList(activity);
+
         // Database is empty, create 4 predefined Task groups
-
-        L.e("TaskList from DB " + taskLists);
-
         if (taskLists == null) {
             taskLists = new ArrayList<TaskList>();
             TaskList schoolTask = createNewTaskList(SCHOOL_TASK_GROUP);
@@ -52,7 +51,7 @@ public class TaskListAsynTask extends AsyncTask<Activity, Void, ArrayList<TaskLi
                 ArrayList<TaskList> serverTaskList =  syncTaskListFromServer();
                 saveDataFromServerToDB(serverTaskList);
 
-                // Sync all local task to server
+                // Sync All TaskList to server
                 TaskList taskListFromServer = null;
 
                 taskListFromServer = GoogleTaskManager.insertTaskList(activity.getService(),SCHOOL_TASK_GROUP);

@@ -15,12 +15,9 @@ import com.nhan.whattodo.data_manager.TaskTable;
 import com.nhan.whattodo.fragment.AddTaskFragment;
 import com.nhan.whattodo.fragment.TaskListFragment;
 import com.nhan.whattodo.receiver.MessageReceiver;
-import com.nhan.whattodo.utils.DialogUtils;
 import com.nhan.whattodo.utils.GoogleTaskHelper;
 import com.nhan.whattodo.utils.GoogleTaskManager;
 import com.nhan.whattodo.utils.L;
-
-import java.util.ArrayList;
 
 /**
  * Created by ivanle on 6/29/14.
@@ -36,8 +33,6 @@ public class TaskActivity extends Activity {
         setContentView(R.layout.task_activity);
         setupActionbar();
 
-        L.e("ON CREATE");
-
         // Get All Task in Parent TaskList
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(KEY_TASK_GROUP_ID)) {
@@ -45,7 +40,7 @@ public class TaskActivity extends Activity {
             getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, TaskListFragment.newInstance(taskGroupId)).commit();
         } else if (intent != null && intent.hasExtra(MessageReceiver.KEY_SOURCE)) {
 
-            L.e("Get intent info");
+            // Get information from intent to get SMS content
             String title = intent.getStringExtra(TaskTable.FIELD_TITLE);
             long dueDate = intent.getLongExtra(TaskTable.FIELD_DUE_DATE, 0);
             final int priority = intent.getIntExtra(TaskTable.FIELD_PRIORITY, 1);
@@ -70,7 +65,7 @@ public class TaskActivity extends Activity {
                         remoteTask.set(TaskTable.FIELD_GROUP, group);
                         remoteTask.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
 
-                        final long insertedTaskId = TaskTable.insertTask(TaskActivity.this, remoteTask);
+                        TaskTable.insertTask(TaskActivity.this, remoteTask);
                         TaskActivity.this.finish();
                     }
                 }
@@ -98,23 +93,13 @@ public class TaskActivity extends Activity {
             case R.id.removeTask:
                 return false;
         }
-
         return false;
-    }
-
-    public void showTaskListFragment(ArrayList<Task> tasks) {
-        DialogUtils.dismissDialog(DialogUtils.DialogType.PROGRESS_DIALOG);
-        if (tasks == null) return;
-        getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer, TaskListFragment.newInstance(taskGroupId)).commit();
     }
 
     private void setupActionbar() {
         ActionBar actionBar = getActionBar();
-//        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.white)));
-        actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK</b></font>"));
+        if (actionBar != null)
+            actionBar.setTitle(Html.fromHtml("<font color='" + getResources().getColor(R.color.cyan) + "'><b>TASK</b></font>"));
     }
 
-    public long getTaskGroupId() {
-        return taskGroupId;
-    }
 }

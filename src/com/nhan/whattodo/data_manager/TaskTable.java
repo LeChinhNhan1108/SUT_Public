@@ -41,8 +41,6 @@ public class TaskTable implements BaseColumns {
             FIELD_REMOTE_ID + " text" +
             ");";
 
-
-
     public static ArrayList<Task> getAllTask(Context context){
         ArrayList<Task> tasks = null;
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
@@ -79,11 +77,11 @@ public class TaskTable implements BaseColumns {
 
         L.e("Get All Task in TaskList " + id);
 
-        ArrayList<Task> tasks = null;
+        ArrayList<Task> tasks;
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         Cursor c = db.query(false, TABLE_NAME, null, FIELD_GROUP + "=" + id, null, null, null, null, null);
 
-        if (!c.moveToFirst()) return tasks;
+        if (!c.moveToFirst()) return null;
         tasks = new ArrayList<Task>();
         while (!c.isAfterLast()) {
 
@@ -127,11 +125,9 @@ public class TaskTable implements BaseColumns {
     }
 
     public static int updateTaskStatus(Context context, long taskLocalId, String status) {
-        L.e("Update Status " + taskLocalId + " -- " + status);
         SQLiteDatabase db = MyHelper.getSQLiteInstance(context);
         ContentValues values = new ContentValues();
         values.put(FIELD_COMPLETION_STATUS, status);
-
         return db.update(TABLE_NAME, values, _ID + "=" + taskLocalId, null);
     }
 
@@ -149,9 +145,6 @@ public class TaskTable implements BaseColumns {
         values.put(FIELD_GROUP, (Long) task.get(FIELD_GROUP));
         values.put(FIELD_COMPLETION_STATUS, task.getStatus());
         values.put(FIELD_REMOTE_ID, task.getId() != null && !task.getId().isEmpty() ? task.getId() : (task.get(TaskTable.FIELD_REMOTE_ID)).toString());
-
-        L.e("Value " + values);
-
 
         int result = db.update(TABLE_NAME, values, _ID + "=" + task.get(TaskTable._ID), null);
         L.e("Update task: " + result + " record is updated");
@@ -184,6 +177,5 @@ public class TaskTable implements BaseColumns {
         }
         return 1;
     }
-
 
 }

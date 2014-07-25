@@ -1,13 +1,11 @@
 package com.nhan.whattodo.service;
 
 import android.content.Context;
-import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 import com.google.api.services.tasks.model.Task;
 import com.nhan.whattodo.R;
 import com.nhan.whattodo.data_manager.TaskTable;
-import com.nhan.whattodo.utils.L;
 import com.nhan.whattodo.utils.Utils;
 
 import java.util.ArrayList;
@@ -15,11 +13,7 @@ import java.util.ArrayList;
 /**
  * Created by ivanle on 7/23/14. All rights reserved
  */
-/**
- * If you are familiar with Adapter of ListView,this is the same as adapter
- * with few changes
- *
- */
+
 public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
     private ArrayList<Task> listItemList = new ArrayList<Task>();
     private Context context = null;
@@ -66,8 +60,6 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public RemoteViews getViewAt(int position) {
-
-        L.e("getViewAt");
 
         final RemoteViews remoteView = new RemoteViews(
                 context.getPackageName(), R.layout.widget_list_item);

@@ -20,7 +20,9 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager
             appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
+
         L.e("Widget Update ");
+
         final int N = appWidgetIds.length;
         for (int i = 0; i < N; ++i) {
             RemoteViews remoteViews = updateWidgetListView(context,
@@ -30,9 +32,9 @@ public class WidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private RemoteViews updateWidgetListView(Context context,
-                                             int appWidgetId) {
-            L.e("Widget updateWidgetListView ");
+    private RemoteViews updateWidgetListView(Context context, int appWidgetId) {
+
+        L.e("Widget updateWidgetListView ");
 
         RemoteViews remoteViews = new RemoteViews(
                 context.getPackageName(), R.layout.app_widget_layout);

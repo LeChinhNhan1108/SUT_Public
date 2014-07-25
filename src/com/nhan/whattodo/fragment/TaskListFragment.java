@@ -79,12 +79,10 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.removeTask:
-                L.t(getActivity(), "REMOVE TASK ");
                 removeTask();
                 return true;
 
             case R.id.updateTask:
-                L.t(getActivity(), "UPDATE TASK ");
                 updateTaskStatus();
                 return true;
             case R.id.sortByDueDate:
@@ -126,7 +124,6 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         String status = tasks.get(position).getStatus().equalsIgnoreCase(TaskTable.STATUS_COMPLETED) ? TaskTable.STATUS_NEED_ACTION : TaskTable.STATUS_COMPLETED;
-        L.e("Set Status " + status);
         tasks.get(position).setStatus(status);
         TaskTable.updateTaskStatus(getActivity(), (Long) tasks.get(position).get(TaskTable._ID), status);
         adapter.notifyDataSetChanged();
@@ -139,9 +136,11 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        L.e("Long click");
-        getActivity().getFragmentManager().beginTransaction().replace(R.id.taskFragmentContainer,
-                AddTaskFragment.newInstance(tasks.get(position))).addToBackStack("UpdateTaskFragment").commit();
+        getActivity().getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.taskFragmentContainer, AddTaskFragment.newInstance(tasks.get(position)))
+                .addToBackStack("UpdateTaskFragment")
+                .commit();
         return true;
     }
 
@@ -160,10 +159,15 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
                 });
                 return null;
             }
+
+            if (GoogleTaskHelper.getService() == null){
+                GoogleTaskHelper.getCredential(getActivity());
+            }
+
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
+                L.e("Sync " + task.getTitle());
                 int result = TaskTable.updateTaskStatus(getActivity(), (Long) task.get(TaskTable._ID), task.getStatus());
-                L.e("Update " + task.toString() + " -- " + task.get(TaskTable.FIELD_REMOTE_ID) + "");
                 if (result != 0) {
                     if (task.getId() == null || task.getId().isEmpty()) {
                         Task remoteTask = GoogleTaskManager.insertTask(GoogleTaskHelper.getService(), parentRemoteId, task);
@@ -173,7 +177,7 @@ public class TaskListFragment extends ListFragment implements AdapterView.OnItem
                             TaskTable.updateTask(getActivity(), task);
                         }
                     } else {
-                        GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), parentRemoteId, task.get(TaskTable.FIELD_REMOTE_ID) + "", task);
+                        GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), parentRemoteId, task.getId(), task);
                     }
                 }
             }

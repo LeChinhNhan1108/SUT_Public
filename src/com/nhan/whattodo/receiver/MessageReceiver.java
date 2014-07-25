@@ -40,7 +40,7 @@ public class MessageReceiver extends BroadcastReceiver {
         Object[] pdus = (Object[]) pduBundle.get("pdus");
         SmsMessage messages = SmsMessage.createFromPdu((byte[]) pdus[0]);
 
-        L.d("Message " + messages.getMessageBody());
+        L.e("Receive Message " + messages.getMessageBody());
 
         if (messages.getMessageBody().contains(context.getString(R.string.SMS_HEADER))) {
             String messageBody = messages.getMessageBody();
@@ -51,28 +51,14 @@ public class MessageReceiver extends BroadcastReceiver {
             String time = tokens[3].split(AddTaskFragment.DELIMETER1)[1];
             final int priority = TaskTable.getPriorityFromString(tokens[4].split(AddTaskFragment.DELIMETER1)[1]);
             final long group = Long.parseLong(tokens[5].split(AddTaskFragment.DELIMETER1)[1]);
-            String note = tokens[6].split(AddTaskFragment.DELIMETER1)[1];
+            String note = tokens.length == 2 ? tokens[6].split(AddTaskFragment.DELIMETER1)[1] : "";
 
-//
-//            L.e("Original Date " + dueDate);
-//            L.e("Original Time " + time);
-//
-            L.e("Converted "+(Utils.convertStringToDate(dueDate)));
-            L.e("Converted "+(Utils.convertStringToTime(time)));
-//
-            L.e("Add 1 " + (Utils.convertStringToDateTime(dueDate+" "+time)));
-//            L.e("Add 2 " + Utils.convertTimeToString(Utils.convertStringToDateTime(dueDate+" "+time)));
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(Utils.convertStringToDateTime(dueDate + " " + time));
 
-            L.e("Calendar " + calendar.getTimeInMillis());
-            L.e("Calendar " + calendar.getTimeZone().toString());
-
-
             final Task task = new Task();
             task.setTitle(title);
-//            task.setDue(new DateTime(Utils.convertStringToDateTime(dueDate + " " + time)));
             task.setDue(new DateTime(calendar.getTime()));
             task.setStatus(TaskTable.STATUS_NEED_ACTION);
             if (note != null && !note.isEmpty())
@@ -97,25 +83,10 @@ public class MessageReceiver extends BroadcastReceiver {
                         task.set(TaskTable.FIELD_GROUP, group);
                         task.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
 
-                        final long insertedTaskId = TaskTable.insertTask(context, task);
-                        L.e("Insert task in BC " + insertedTaskId);
+                        TaskTable.insertTask(context, task);
                     }
                 }
             }).start();
-
-//            Intent intentToActivity = new Intent(context, TaskActivity.class);
-//
-//            intentToActivity.putExtra(KEY_SOURCE, SOURCE);
-//            intentToActivity.putExtra(TaskTable.FIELD_TITLE, title);
-//            intentToActivity.putExtra(TaskTable.FIELD_DUE_DATE, Utils.convertStringToDate(dueDate) + Utils.convertStringToTime(time));
-//            intentToActivity.putExtra(TaskTable.FIELD_PRIORITY, priority);
-//            intentToActivity.putExtra(TaskTable.FIELD_GROUP, group);
-//
-//            if (!note.equalsIgnoreCase("null"))
-//                intentToActivity.putExtra(TaskTable.FIELD_NOTE, note);
-//
-//            intentToActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            context.startActivity(intentToActivity);
             abortBroadcast();
         } else {
             L.e("NOT Get Message");

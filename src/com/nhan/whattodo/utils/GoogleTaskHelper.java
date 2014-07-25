@@ -110,6 +110,7 @@ public class GoogleTaskHelper {
 
     public static Tasks getService() {
         if (service == null) {
+            if (credential == null) return null;
             HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
             service = new Tasks.Builder(httpTransport, jsonFactory, credential).build();

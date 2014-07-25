@@ -47,16 +47,11 @@ public class DialogFragment extends android.app.DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        L.d("Dismiss ");
         dismissAction.onDimiss();
     }
 
     private IPositiveDialogClick positiveDialogClick;
     private IOnDismiss dismissAction;
-
-    public void setPositiveDialogClick(IPositiveDialogClick positiveDialogClick) {
-        this.positiveDialogClick = positiveDialogClick;
-    }
 
     public void setDismissAction(IOnDismiss dismissAction) {
         this.dismissAction = dismissAction;

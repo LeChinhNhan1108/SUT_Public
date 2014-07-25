@@ -36,10 +36,11 @@ public class SyncAllDBAsyncTask extends AsyncTask<Activity, Void, Boolean> {
                         // Add remote id to local
                         if (remoteTask != null) {
                             task.set(TaskTable.FIELD_REMOTE_ID, remoteTask.getId());
-                            L.e("Update task 1" + task.toString());
                             TaskTable.updateTask(activity, task);
                         }
                     } else {
+                        if (GoogleTaskHelper.getService() == null)
+                            GoogleTaskHelper.getCredential(activity);
                         GoogleTaskManager.updateTask(GoogleTaskHelper.getService(), taskList.getId(), task.getId(), task);
                     }
                 }
@@ -47,7 +48,6 @@ public class SyncAllDBAsyncTask extends AsyncTask<Activity, Void, Boolean> {
         }
         return true;
     }
-
 
     @Override
     protected void onPostExecute(Boolean result) {
