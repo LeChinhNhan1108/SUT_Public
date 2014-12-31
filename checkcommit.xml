@@ -4,5 +4,9 @@
 
 Nhan is editting this file
 
+<<<<<<< HEAD
+Now I am editting this file again for testing
+=======
 
 Make conflict commit..
+>>>>>>> branch 'master' of https://github.com/LeChinhNhan1108/SUT_Public
