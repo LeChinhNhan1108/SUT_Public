@@ -6,3 +6,5 @@ package com.nhan.whattodo;
 public final class BuildConfig {
   public final static boolean DEBUG = Boolean.parseBoolean(null);
 }
+
+// this is a comment made by NHN
